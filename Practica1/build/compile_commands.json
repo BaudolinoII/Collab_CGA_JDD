@@ -1,0 +1,87 @@
+[
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Bones.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\Bones.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/Bones.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Box.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\Box.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/Box.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Cylinder.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\Cylinder.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/Cylinder.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\FirstPersonCamera.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\FirstPersonCamera.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/FirstPersonCamera.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\FontTypeRendering.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\FontTypeRendering.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/FontTypeRendering.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Mesh.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\Mesh.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/Mesh.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Model.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\Model.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/Model.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Shader.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\Shader.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/Shader.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\ShadowBox.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\ShadowBox.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/ShadowBox.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Sphere.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\Sphere.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/Sphere.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Terrain.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\Terrain.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/Terrain.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Texture.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\Texture.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/Texture.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\ThirdPersonCamera.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\ThirdPersonCamera.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/ThirdPersonCamera.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\TimeManager.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\CGALib\\src\\TimeManager.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/src/TimeManager.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/00-Introduccion",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL @CMakeFiles/00-Introduccion.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\00-Introduccion.dir\\src\\main.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\00-Introduccion\\src\\main.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/00-Introduccion/src/main.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/01-AnimacionKeyFrames",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL @CMakeFiles/01-AnimacionKeyFrames.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\01-AnimacionKeyFrames.dir\\src\\main.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\01-AnimacionKeyFrames\\src\\main.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/01-AnimacionKeyFrames/src/main.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build/02-SkeletonAnimation",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL @CMakeFiles/02-SkeletonAnimation.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\02-SkeletonAnimation.dir\\src\\main.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\02-SkeletonAnimation\\src\\main.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/02-SkeletonAnimation/src/main.cpp"
+}
+]

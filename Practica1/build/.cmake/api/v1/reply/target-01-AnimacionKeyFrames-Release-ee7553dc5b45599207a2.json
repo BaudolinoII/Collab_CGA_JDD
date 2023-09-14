@@ -1,0 +1,287 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/bin/01-AnimacionKeyFrames.exe"
+		},
+		{
+			"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/bin/01-AnimacionKeyFrames.pdb"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"link_directories",
+			"target_link_libraries",
+			"add_definitions",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"01-AnimacionKeyFrames/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 33,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 20,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 42,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 1,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 7,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-O3 -DNDEBUG"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 4,
+					"define" : "BUILDING_DLL"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/01-AnimacionKeyFrames/01-AnimacionKeyFrames"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/CGALib/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "/usr/include/freetype2"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/01-AnimacionKeyFrames/../external/assimp/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/01-AnimacionKeyFrames/../external/glfw/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/01-AnimacionKeyFrames/../external/glm"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/01-AnimacionKeyFrames/../external/glew/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/01-AnimacionKeyFrames/../external/FreeImage/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/01-AnimacionKeyFrames/../external/OpenAL/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/01-AnimacionKeyFrames/../external/Freetype/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/01-AnimacionKeyFrames/../external/freealut/include"
+				}
+			],
+			"language" : "CXX",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 3,
+			"id" : "CGALib::@1a9f62cd0483ef4537e7"
+		}
+	],
+	"id" : "01-AnimacionKeyFrames::@a33ee4654ab24427bda0",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-O3 -DNDEBUG",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\01-AnimacionKeyFrames\\..\\external\\assimp\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\01-AnimacionKeyFrames\\..\\external\\glfw\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\01-AnimacionKeyFrames\\..\\external\\Freetype\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\01-AnimacionKeyFrames\\..\\external\\FreeImage\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\01-AnimacionKeyFrames\\..\\external\\glew\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\01-AnimacionKeyFrames\\..\\external\\freealut\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\01-AnimacionKeyFrames\\..\\external\\OpenAL\\lib\\x64",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lopengl32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lglfw3dll",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lglew32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lassimp",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lfreetype",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lalut",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lOpenAL32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "..\\CGALib\\libCGALib.dll.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lopengl32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lglfw3dll",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lglew32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lassimp",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lfreetype",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "01-AnimacionKeyFrames",
+	"nameOnDisk" : "01-AnimacionKeyFrames.exe",
+	"paths" : 
+	{
+		"build" : "01-AnimacionKeyFrames",
+		"source" : "01-AnimacionKeyFrames"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "01-AnimacionKeyFrames/src/main.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

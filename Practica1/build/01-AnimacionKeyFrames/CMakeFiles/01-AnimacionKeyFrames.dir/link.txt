@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\01-AnimacionKeyFrames.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\01-AnimacionKeyFrames.dir/objects.a @CMakeFiles\01-AnimacionKeyFrames.dir\objects1.rsp
+C:\msys64\mingw64\bin\g++.exe -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\01-AnimacionKeyFrames.dir/objects.a -Wl,--no-whole-archive -o C:\Users\espin\OneDrive\Documentos\Semestre2024\Graficos_adv\ComputacionGraficaAvanzada\bin\01-AnimacionKeyFrames.exe -Wl,--out-implib,lib01-AnimacionKeyFrames.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\01-AnimacionKeyFrames.dir\linklibs.rsp

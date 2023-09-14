@@ -1,0 +1,45 @@
+########################################
+#Plantilla del Manifiesto a los modelos#
+########################################
+
+#Nombres de los modelos y linea obligatoria en colocar primero
+LOAD_MODELS centro base modelo_anidado modelo_con_reflejo_a_izquierda modelo_con_reflejo_a_izquierda modelo_con_reflejo_abajo modelo_sin_reflejo
+
+#Estructura de modelos
+MOD_STRUCT centro POS(0.0,0.0,0.0) ROT(90.0,1.0,0.0,0.0) SCL(1.0,2.0,1.0){
+	X_SIM modelo_con_reflejo_a_izquierda POS(35.0,55,48)			#No es necesario especificar los puntos de reflejo, ni identificadores
+																	#Considera el salto de linea como separacion
+	modelo_sin_reflejo ROT(45,0,0,1)
+	Y_SIM modelo_con_reflejo_abajo SCL(1)						#Solo se necesita de un valor para interpretar el resto
+	MOD_STRUCT base{											#Sino se colocan parámetros se interpreta que los valores son 0
+		Z_SIM modelo_anidado ROT(10, z, x)						#notacion alternativa donde se puede colocar x y z en cualquier orden
+	}
+}
+
+#Modelo sin restricciones en particular
+SINGLE_MODEL modelo_sencillo POS(2,4,3) ROT(60,z) SCL(3)
+
+#Rutinas de movimiento
+#Parametro obligatorio es
+ROUTINE rutina1 LOOP(true) FPS(60){
+	FRAME{
+		centro POS(3,0,0)
+		BOTH modelo_con_reflejo_a_izquierda ROT(90,x) #Para referenciar al cambio de ambas partes del modelo
+		CLONE modelo_con_reflejo_abajo ROT(-90,y) #Para referenciar solo al cambio a la parte clonada
+		modelo_sin_reflejo SCL(1) #De no especificar, el cambio solo aplica al original
+		base POS(0,4,0)
+		modelo_anidado ROT(90,z,y) 
+	}
+} 
+
+#Se puede especificar un loop explicito de cuadros, se cuenta desde el 0 y el recorrido esta encerrado por el modulo
+ROUTINE rutina2 LOOP(3,5) PPF(120){
+	FRAME{
+		modelo_sencillo POS(3,0,0)
+	}
+	FRAME{
+		ORG_STAT modelo_sencillo
+	}
+} 
+
+#Proximamente se incluiran Guiones para controlar multiples rutinas

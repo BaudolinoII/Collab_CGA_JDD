@@ -1,0 +1,151 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4
+					],
+					"jsonFile" : "directory-.-Release-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "CGALib",
+					"jsonFile" : "directory-CGALib-Release-c25a36b81c9fe6cb6742.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "CGALib",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "00-Introduccion",
+					"jsonFile" : "directory-00-Introduccion-Release-c8b7a20055b4ed709003.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "00-Introduccion",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "01-AnimacionKeyFrames",
+					"jsonFile" : "directory-01-AnimacionKeyFrames-Release-217070ddb95408d4ffec.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "01-AnimacionKeyFrames",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "02-SkeletonAnimation",
+					"jsonFile" : "directory-02-SkeletonAnimation-Release-b2a99c4645e0cead3d06.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "02-SkeletonAnimation",
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					],
+					"name" : "CGA",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "00-Introduccion::@6d28e7ca973515348cfa",
+					"jsonFile" : "target-00-Introduccion-Release-1963ef468cd8c32affca.json",
+					"name" : "00-Introduccion",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "01-AnimacionKeyFrames::@a33ee4654ab24427bda0",
+					"jsonFile" : "target-01-AnimacionKeyFrames-Release-ee7553dc5b45599207a2.json",
+					"name" : "01-AnimacionKeyFrames",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "02-SkeletonAnimation::@5d21477f0ac2f35e8681",
+					"jsonFile" : "target-02-SkeletonAnimation-Release-d2351cf9e69e18dc61e2.json",
+					"name" : "02-SkeletonAnimation",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "CGALib::@1a9f62cd0483ef4537e7",
+					"jsonFile" : "target-CGALib-Release-c63bbddf35aeb372a38b.json",
+					"name" : "CGALib",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada/build",
+		"source" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/ComputacionGraficaAvanzada"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}

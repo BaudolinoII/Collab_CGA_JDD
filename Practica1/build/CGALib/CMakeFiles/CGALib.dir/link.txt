@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\CGALib.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\CGALib.dir/objects.a @CMakeFiles\CGALib.dir\objects1.rsp
+C:\msys64\mingw64\bin\g++.exe -O3 -DNDEBUG -shared -o C:\Users\espin\OneDrive\Documentos\Semestre2024\Graficos_adv\ComputacionGraficaAvanzada\bin\libCGALib.dll -Wl,--out-implib,libCGALib.dll.a -Wl,--major-image-version,0,--minor-image-version,0 -Wl,--whole-archive CMakeFiles\CGALib.dir/objects.a -Wl,--no-whole-archive @CMakeFiles\CGALib.dir\linklibs.rsp
