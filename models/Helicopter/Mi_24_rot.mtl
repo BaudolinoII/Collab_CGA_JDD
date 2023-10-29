@@ -1,0 +1,14 @@
+# Blender MTL File: 'UA_Chopper.blend'
+# Material Count: 1
+
+newmtl phong1SG.001
+Ns 96.078421
+Ka 1.000000 1.000000 1.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\models\\Helicopter\\diffuse_m24_alpha.tga
+map_Kd C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\ComputacionGraficaAvanzada\\models\\Helicopter\\diffuse_m24_alpha.tga
