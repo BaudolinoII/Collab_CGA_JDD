@@ -4,6 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <map>
+#include <tuple>
 
 //glfw include
 #include <GL/glew.h>
@@ -17,6 +19,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Include loader Model class
+#include "Headers/AbstractModel.h"
 #include "Headers/TimeManager.h"
 #include "Headers/Shader.h"
 #include "Headers/Sphere.h"
@@ -35,16 +38,26 @@ int screenHeight;
 
 GLFWwindow *window;
 
-//Shader con skybox, multiples luces, terreno del escenario
-Shader shaderSkybox, shaderMulLighting, shaderTerrain;
+//Shader con skybox, multiples luces, terreno del escenario, pruebas
+Shader shaderSkybox, shaderMulLighting, shaderTerrain, shaderTest;
 
 std::shared_ptr<FirstPersonCamera> camera(new FirstPersonCamera());
 
 Sphere skyboxSphere(20, 20);
-Box boxCesped;
+Box boxCesped; 
 
-Sphere esfera1(10, 10);
+//Objetos para pruebas de colisiones
+Sphere sphereDrawable(10, 10);
+Box boxDrawable;
+Cylinder rayDrawable(10,10);
+
+//Informacion de las alturas del terreno
 Terrain terrain(-1, -1, 200, 8, "../Textures/heightmap.png");
+
+//Elementos de un modelo
+Model modelEjem;
+glm::mat4 modelMatrix = glm::mat4(1.0f);
+size_t animationModelIndex = 0;
 
 GLuint textureTerrain[5]; // textureCespedID, textureTerrainRID, textureTerrainGID, textureTerrainBID, textureTerrainBlendMapID;
 GLuint skyboxTextureID;
@@ -68,9 +81,18 @@ std::string fileNames[6] = {
 bool exitApp = false;
 int lastMousePosX, offsetX = 0;
 int lastMousePosY, offsetY = 0;
-
+//Variables de tiempo
 double deltaTime;
 double currTime, lastTime;
+
+//Físicas Generales
+const float GRAVITY = 1.81f;
+double tmv = 0.0, startTimeJump = 0.0;
+bool isNotJump = true;
+
+//Colisiones
+std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> lay_Colition_SBB;
+std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> lay_Colition_OBB;
 
 class animationMatrix{
 	private: std::vector<std::vector<float>> keyFramesModelJoints;
@@ -199,16 +221,16 @@ class animationMatrix{
 };
 
 // Se definen todos las funciones.
+void init(int width, int height, std::string strTitle, bool bFullScreen);
+void destroy();
 void reshapeCallback(GLFWwindow *Window, int widthRes, int heightRes);
 void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mode);
 void mouseCallback(GLFWwindow *window, double xpos, double ypos);
 void mouseButtonCallback(GLFWwindow *window, int button, int state, int mod);
-void init(int width, int height, std::string strTitle, bool bFullScreen);
-void destroy();
 bool processInput(bool continueApplication = true);
 
-//Defincion de matrices para modelos controlados
-glm::mat4 modelMatrix = glm::mat4(1.0f);
+void addOrUpdateColliders(std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> &lay_Colition, std::string name, AbstractModel::OBB collider, glm::mat4 mat);
+void addOrUpdateColliders(std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> &lay_Colition, std::string name, AbstractModel::SBB collider, glm::mat4 mat);
 
 // Implementacion de todas las funciones.
 void init(int width, int height, std::string strTitle, bool bFullScreen) {
@@ -262,6 +284,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	shaderSkybox.initialize("../Shaders/skyBox.vs", "../Shaders/skyBox.fs");
 	shaderMulLighting.initialize("../Shaders/iluminacion_textura_animation.vs", "../Shaders/multipleLights.fs");
 	shaderTerrain.initialize("../Shaders/terrain.vs", "../Shaders/terrain.fs");
+	shaderTest.initialize("../Shaders/colorShader.vs", "../Shaders/colorShader.fs");
 
 	// Inicializacion de los objetos.
 	skyboxSphere.init();
@@ -271,11 +294,27 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	boxCesped.init();
 	boxCesped.setShader(&shaderMulLighting);
 
+	sphereDrawable.init();
+	sphereDrawable.setShader(&shaderTest);
+	sphereDrawable.setColor(glm::vec4(1.0f));
+
+	boxDrawable.init();
+	boxDrawable.setShader(&shaderTest);
+	boxDrawable.setColor(glm::vec4(1.0f));
+
+	rayDrawable.init();
+	rayDrawable.setShader(&shaderTest);
+	rayDrawable.setColor(glm::vec4(1.0f));
+
 	// Terreno
 	terrain.init();
 	terrain.setShader(&shaderTerrain);
 
 	camera->setPosition(glm::vec3(0.0, 3.0, 4.0));
+
+	//Modelos
+	modelEjem.loadModel("../models/mayow/personaje2.fbx");
+	modelEjem.setShader(&shaderMulLighting);
 	
 	// Carga de texturas para el skybox
 	Texture skyboxTexture = Texture("");
@@ -321,7 +360,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 		text.freeImage();
 	}	
 }
-
 void destroy() {
 	glfwDestroyWindow(window);
 	glfwTerminate();
@@ -331,8 +369,12 @@ void destroy() {
 	shaderTerrain.destroy();
 
 	skyboxSphere.destroy();
+	sphereDrawable.destroy();
 	boxCesped.destroy();
+	boxDrawable.destroy();
 	terrain.destroy();
+
+	modelEjem.destroy();
 
 	for(size_t i = 0; i < 5; i++){
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -342,13 +384,11 @@ void destroy() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	glDeleteTextures(1, &skyboxTextureID);
 }
-
 void reshapeCallback(GLFWwindow *Window, int widthRes, int heightRes) {
 	screenWidth = widthRes;
 	screenHeight = heightRes;
 	glViewport(0, 0, widthRes, heightRes);
 }
-
 void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mode) {
 	if (action == GLFW_PRESS) 
 		switch (key) {
@@ -357,14 +397,12 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mode
 				break;
 			}
 }
-
 void mouseCallback(GLFWwindow *window, double xpos, double ypos) {
 	offsetX = xpos - lastMousePosX;
 	offsetY = ypos - lastMousePosY;
 	lastMousePosX = xpos;
 	lastMousePosY = ypos;
 }
-
 void mouseButtonCallback(GLFWwindow *window, int button, int state, int mod) {
 	if (state == GLFW_PRESS) {
 		switch (button) {
@@ -381,7 +419,6 @@ void mouseButtonCallback(GLFWwindow *window, int button, int state, int mod) {
 		}
 	}
 }
-
 bool processInput(bool continueApplication) {
 	if (exitApp || glfwWindowShouldClose(window) != 0) {
 		return false;
@@ -399,6 +436,28 @@ bool processInput(bool continueApplication) {
 		camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
 	offsetX = 0;
 	offsetY = 0;
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+		modelMatrix = glm::rotate(modelMatrix, 0.02f, glm::vec3(0, 1, 0));
+		animationModelIndex = 0;
+	} else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+		modelMatrix = glm::rotate(modelMatrix, -0.02f, glm::vec3(0, 1, 0));
+		animationModelIndex = 0;
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+		modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0, 0.0, 0.02));
+		animationModelIndex = 0;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+		modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0, 0.0, -0.02));
+		animationModelIndex = 0;
+	}
+	if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isNotJump){
+		animationModelIndex = 0;
+		startTimeJump = currTime;
+		tmv = 0;
+		isNotJump = false;
+	}
 	
 	/*
 	// Seleccionar modelo
@@ -419,6 +478,23 @@ bool processInput(bool continueApplication) {
 
 	glfwPollEvents();
 	return continueApplication;
+}
+
+void addOrUpdateColliders(std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> &lay_Colition, std::string name, AbstractModel::OBB collider, glm::mat4 mat){
+	std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator it = lay_Colition.find(name);
+	if(it != lay_Colition.end()){
+		std::get<0>(it->second) = collider;
+		std::get<2>(it->second) = mat;
+	}else
+		lay_Colition[name] = std::make_tuple(collider, glm::mat4(1.0f), mat);
+}
+void addOrUpdateColliders(std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> &lay_Colition, std::string name, AbstractModel::SBB collider, glm::mat4 mat){
+	std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = lay_Colition.find(name);
+	if(it != lay_Colition.end()){
+		std::get<0>(it->second) = collider;
+		std::get<2>(it->second) = mat;
+	}else
+		lay_Colition[name] = std::make_tuple(collider, glm::mat4(1.0f), mat);
 }
 
 void applicationLoop() {
@@ -568,23 +644,32 @@ void applicationLoop() {
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		/*****************************************
-		 * Objetos animados por huesos
+		 * Objetos Animados en FBX
 		 * **************************************/
-		/*
+		
 		//Ajuste de personajes al suelo
-		glm::vec3 ejey = glm::normalize(terrain.getNormalTerrain(modelMatrixMayow[3][0], modelMatrixMayow[3][2]));
-		glm::vec3 ejex = glm::vec3(modelMatrixMayow[0]);
+		float currHeight = terrain.getHeightTerrain(modelMatrix[3][0], modelMatrix[3][2]);
+		glm::vec3 ejey = glm::normalize(terrain.getNormalTerrain(modelMatrix[3][0], modelMatrix[3][2]));
+		glm::vec3 ejex = glm::vec3(modelMatrix[0]);
 		glm::vec3 ejez = glm::normalize(glm::cross(ejex, ejey));
 		ejex = glm::normalize(glm::cross(ejey, ejez));
-		modelMatrixMayow[0] = glm::vec4(ejex, 0.0);
-		modelMatrixMayow[1] = glm::vec4(ejey, 0.0);
-		modelMatrixMayow[2] = glm::vec4(ejez, 0.0);
-		modelMatrixMayow[3][1] = terrain.getHeightTerrain(modelMatrixMayow[3][0], modelMatrixMayow[3][2]);
+		modelMatrix[0] = glm::vec4(ejex, 0.0);
+		modelMatrix[1] = glm::vec4(ejey, 0.0);
+		modelMatrix[2] = glm::vec4(ejez, 0.0);
+		//Aplicando el desplazamiento por gravedad
+		modelMatrix[3][1] = -GRAVITY * tmv * tmv + 3.1 * tmv + currHeight;
+		tmv = currTime - startTimeJump;
 
-		glm::mat4 modelMatrixMayowBody = glm::mat4(modelMatrixMayow);
-		mayowModelAnimate.setAnimationIndex(animationMayowIndex);
-		mayowModelAnimate.render(modelMatrixMayowBody);
-		animationMayowIndex = 1;*/
+		if(modelMatrix[3][1] < currHeight){
+			isNotJump = true;
+			modelMatrix[3][1] = currHeight; 
+		}
+
+		glm::mat4 modelMatrixBody = glm::mat4(modelMatrix);
+		modelMatrixBody = glm::scale(modelMatrixBody, glm::vec3(0.021f));
+		modelEjem.setAnimationIndex(animationModelIndex);
+		modelEjem.render(modelMatrixBody);
+		animationModelIndex = 1;
 
 		/*******************************************
 		 * Skybox
@@ -601,8 +686,68 @@ void applicationLoop() {
 		skyboxSphere.render();
 		glCullFace(oldCullFaceMode);
 		glDepthFunc(oldDepthFuncMode);
-				
-		
+
+		/*******************************************
+		 * Raycast
+		 *******************************************/
+		glm::mat4 modelMatrixRay = glm::mat4(modelMatrix);//Rayo se sujeta al frente del modelo
+		modelMatrixRay = glm::translate(modelMatrixRay, glm::vec3(0.0f,1.0f,0.0f));
+		const float maxDistance = 10.0f;
+		glm::vec3 rayDirection = modelMatrixRay[2];
+		glm::vec3 ori = modelMatrixRay[3];
+		glm::vec3 rmd = ori + rayDirection*(maxDistance/2.0f);
+		glm::vec3 targetRay = ori + rayDirection * maxDistance;
+		modelMatrixRay[3] = glm::vec4(rmd, 1.0f);
+		//Forma de Rayo
+		modelMatrixRay = glm::rotate(modelMatrixRay, glm::radians(90.0f), glm::vec3(1,0,0));
+		modelMatrixRay = glm::scale(modelMatrixRay, glm::vec3(0.05f, maxDistance, 0.5f));
+		rayDrawable.render(modelMatrixRay);
+
+		/*******************************************
+		 * Collider Spheres
+		 *******************************************/
+		glm::mat4 modelMatrixCollider = glm::mat4(modelMatrix);
+		AbstractModel::SBB bodyColliderSBB;
+		modelMatrixCollider = glm::scale(modelMatrixCollider, glm::vec3(1.0f));//Trasladar al centro del modelo
+		modelMatrixCollider = glm::translate(modelMatrixCollider,modelEjem.getSbb().c);
+		bodyColliderSBB.c = modelMatrixCollider[3];
+		bodyColliderSBB.ratio = modelEjem.getSbb().ratio * 1.0f;//Escala del radio
+		addOrUpdateColliders(lay_Colition_SBB, "ModelSphere", bodyColliderSBB, modelMatrix);//Se carga en la capa correspondiente
+		/*******************************************
+		* Visualizacion de Collider Spheres
+		*******************************************/
+		std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator itSBB;
+		for(itSBB = lay_Colition_SBB.begin(); itSBB != lay_Colition_SBB.end(); itSBB++){
+			glm::mat4 matrixCollider = glm::mat4(1.0f);
+			matrixCollider = glm::translate(matrixCollider, std::get<0>(itSBB->second).c);
+			matrixCollider = glm::scale(matrixCollider, glm::vec3(std::get<0>(itSBB->second).ratio * 2.0f));
+			sphereDrawable.enableWireMode();
+			boxDrawable.render(matrixCollider);
+		}
+		/*******************************************
+		 * Collider Boxes
+		 *******************************************/
+		modelMatrixCollider = glm::mat4(modelMatrix);
+		AbstractModel::OBB bodyColliderOBB;
+		bodyColliderOBB.u = glm::quat_cast(modelMatrixCollider);//Orientación de la caja antes que la escala
+		modelMatrixCollider = glm::scale(modelMatrixCollider, glm::vec3(1.0f));
+		modelMatrixCollider = glm::translate(modelMatrixCollider,modelEjem.getObb().c);//Trasladar al centro del modelo
+		bodyColliderOBB.c = modelMatrixCollider[3];
+		bodyColliderOBB.e = modelEjem.getObb().e * glm::vec3(1.0f) * glm::vec3(0.5f);//Escala del modelo, el segundo vector es un ajuste manual
+		addOrUpdateColliders(lay_Colition_OBB, "ModelBox", bodyColliderOBB, modelMatrix);//Se carga en la capa correspondiente
+		/*******************************************
+		 * Visualizacion de Collider Boxes
+		 *******************************************/
+		std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator itOBB;
+		for(itOBB = lay_Colition_OBB.begin(); itOBB != lay_Colition_OBB.end(); itOBB++){
+			glm::mat4 matrixCollider = glm::mat4(1.0f);
+			matrixCollider = glm::translate(matrixCollider, std::get<0>(itOBB->second).c);
+			matrixCollider = matrixCollider * glm::mat4(std::get<0>(itOBB->second).u);
+			matrixCollider = glm::scale(matrixCollider, std::get<0>(itOBB->second).e * 2.0f);
+			boxDrawable.enableWireMode();
+			boxDrawable.render(matrixCollider);
+		}
+
 		glfwSwapBuffers(window);
 	}
 }
