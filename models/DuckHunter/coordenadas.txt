@@ -1,0 +1,23 @@
+Coordenadas Oruga Front Right:
+X	-2.7911 m
+Y	-3.93159 m
+Z	1.22566 m
+glm::vec3(-2.7911f, 1.22566f, 3.93159f);
+
+Coordenadas Torreta:
+X	0 m
+Y	0.211106 m
+Z	4.20443 m
+glm::vec3(0.0f, 4.20443f, -0.211106f);
+
+Coordenadas Cannon:
+X	0 m
+Y	-3.05518 m
+Z	4.07423 m
+glm::vec3(0.0f, 4.07423f, 3.05518f);
+
+Coordenadas Chasis:
+X	0 m
+Y	0 m
+Z	0 m
+glm::vec3(0.0f, 0.0f, 0.0f);

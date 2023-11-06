@@ -59,6 +59,14 @@ Model modelEjem;
 glm::mat4 modelMatrix = glm::mat4(1.0f);
 size_t animationModelIndex = 0;
 
+//Elementos del Tanque Duck-Hunter
+Model modelTank_Chasis;
+Model modelTank_Turret;
+Model modelTank_Cannon;
+Model modelTank_Track;
+glm::mat4 modelTankMatrix = glm::mat4(1.0f);
+size_t animationTankIndex = 0;
+
 GLuint textureTerrain[5]; // textureCespedID, textureTerrainRID, textureTerrainGID, textureTerrainBID, textureTerrainBlendMapID;
 GLuint skyboxTextureID;
 
@@ -315,6 +323,16 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	//Modelos
 	modelEjem.loadModel("../models/mayow/personaje2.fbx");
 	modelEjem.setShader(&shaderMulLighting);
+
+	//Tanque Duck-Hunter
+	modelTank_Chasis.loadModel("../models/DuckHunter/chasis.obj");
+	modelTank_Chasis.setShader(&shaderMulLighting);
+	modelTank_Turret.loadModel("../models/DuckHunter/turret.obj");
+	modelTank_Turret.setShader(&shaderMulLighting);
+	modelTank_Cannon.loadModel("../models/DuckHunter/cannon.obj");
+	modelTank_Cannon.setShader(&shaderMulLighting);
+	modelTank_Track.loadModel("../models/DuckHunter/track.obj");
+	modelTank_Track.setShader(&shaderMulLighting);
 	
 	// Carga de texturas para el skybox
 	Texture skyboxTexture = Texture("");
@@ -375,6 +393,11 @@ void destroy() {
 	terrain.destroy();
 
 	modelEjem.destroy();
+
+	modelTank_Chasis.destroy();
+	modelTank_Turret.destroy();
+	modelTank_Cannon.destroy();
+	modelTank_Track.destroy();
 
 	for(size_t i = 0; i < 5; i++){
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -438,22 +461,22 @@ bool processInput(bool continueApplication) {
 	offsetY = 0;
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
-		modelMatrix = glm::rotate(modelMatrix, 0.02f, glm::vec3(0, 1, 0));
-		animationModelIndex = 0;
+		modelTankMatrix = glm::rotate(modelTankMatrix, 0.02f, glm::vec3(0, 1, 0));
+		animationTankIndex = 0;
 	} else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
-		modelMatrix = glm::rotate(modelMatrix, -0.02f, glm::vec3(0, 1, 0));
-		animationModelIndex = 0;
+		modelTankMatrix = glm::rotate(modelTankMatrix, -0.02f, glm::vec3(0, 1, 0));
+		animationTankIndex = 0;
 	}
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
-		modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0, 0.0, 0.02));
-		animationModelIndex = 0;
+		modelTankMatrix = glm::translate(modelTankMatrix, glm::vec3(0.0, 0.0, 0.02));
+		animationTankIndex = 0;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
-		modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0, 0.0, -0.02));
-		animationModelIndex = 0;
+		modelTankMatrix = glm::translate(modelTankMatrix, glm::vec3(0.0, 0.0, -0.02));
+		animationTankIndex = 0;
 	}
 	if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isNotJump){
-		animationModelIndex = 0;
+		animationTankIndex = 0;
 		startTimeJump = currTime;
 		tmv = 0;
 		isNotJump = false;
@@ -585,6 +608,9 @@ void applicationLoop() {
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) screenWidth / (float) screenHeight, 0.01f, 100.0f);
 		glm::mat4 view = camera->getViewMatrix();
 
+		// Settea la matriz de pruebas
+		shaderTest.setMatrix4("projection", 1, false, glm::value_ptr(projection));
+		shaderTest.setMatrix4("view", 1, false, glm::value_ptr(view));
 		// Settea la matriz de vista y projection al shader con skybox
 		shaderSkybox.setMatrix4("projection", 1, false, glm::value_ptr(projection));
 		shaderSkybox.setMatrix4("view", 1, false, glm::value_ptr(glm::mat4(glm::mat3(view))));
@@ -648,27 +674,42 @@ void applicationLoop() {
 		 * **************************************/
 		
 		//Ajuste de personajes al suelo
-		float currHeight = terrain.getHeightTerrain(modelMatrix[3][0], modelMatrix[3][2]);
-		glm::vec3 ejey = glm::normalize(terrain.getNormalTerrain(modelMatrix[3][0], modelMatrix[3][2]));
-		glm::vec3 ejex = glm::vec3(modelMatrix[0]);
+		float currHeight = terrain.getHeightTerrain(modelTankMatrix[3][0], modelTankMatrix[3][2]);
+		glm::vec3 ejey = glm::normalize(terrain.getNormalTerrain(modelTankMatrix[3][0], modelTankMatrix[3][2]));
+		glm::vec3 ejex = glm::vec3(modelTankMatrix[0]);
 		glm::vec3 ejez = glm::normalize(glm::cross(ejex, ejey));
 		ejex = glm::normalize(glm::cross(ejey, ejez));
-		modelMatrix[0] = glm::vec4(ejex, 0.0);
-		modelMatrix[1] = glm::vec4(ejey, 0.0);
-		modelMatrix[2] = glm::vec4(ejez, 0.0);
+		modelTankMatrix[0] = glm::vec4(ejex, 0.0);
+		modelTankMatrix[1] = glm::vec4(ejey, 0.0);
+		modelTankMatrix[2] = glm::vec4(ejez, 0.0);
 		//Aplicando el desplazamiento por gravedad
-		modelMatrix[3][1] = -GRAVITY * tmv * tmv + 3.1 * tmv + currHeight;
+		modelTankMatrix[3][1] = -GRAVITY * tmv * tmv + 3.1 * tmv + currHeight;
 		tmv = currTime - startTimeJump;
 
-		if(modelMatrix[3][1] < currHeight){
+		if(modelTankMatrix[3][1] < currHeight){
 			isNotJump = true;
-			modelMatrix[3][1] = currHeight; 
+			modelTankMatrix[3][1] = currHeight; 
 		}
+		//Chasis
+		glm::mat4 modelTankMatrix_Chasis = glm::mat4(modelTankMatrix);
+		modelTankMatrix_Chasis = glm::scale(modelTankMatrix_Chasis, glm::vec3(0.5f));
+		modelTank_Chasis.render(modelTankMatrix_Chasis);
+		
+		//modelTank_Track.setAnimationIndex(animationTankIndex);
 
-		glm::mat4 modelMatrixBody = glm::mat4(modelMatrix);
-		modelMatrixBody = glm::scale(modelMatrixBody, glm::vec3(0.021f));
-		modelEjem.setAnimationIndex(animationModelIndex);
-		modelEjem.render(modelMatrixBody);
+		//Tracks
+		glm::mat4 modelMatrixTank_aux = glm::translate(modelTankMatrix_Chasis, glm::vec3(-2.7911f, 1.22566f, 3.93159f));
+		modelTank_Track.render(modelMatrixTank_aux);
+
+		//Torreta
+		modelMatrixTank_aux = glm::translate(modelTankMatrix_Chasis, glm::vec3(0.0f, 4.20443f, -0.211106f));
+		//modelMatrixTank_aux = glm::rotate(modelMatrixTank_aux, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelTank_Turret.render(modelMatrixTank_aux);
+
+		//Cañon
+		modelMatrixTank_aux = glm::translate( modelMatrixTank_aux, glm::vec3(0.0f, -0.1302f, 3.266286f));
+		//modelMatrixTank_aux = glm::rotate(modelMatrixTank_aux, glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		modelTank_Cannon.render(modelMatrixTank_aux);
 		animationModelIndex = 1;
 
 		/*******************************************
@@ -690,7 +731,7 @@ void applicationLoop() {
 		/*******************************************
 		 * Raycast
 		 *******************************************/
-		glm::mat4 modelMatrixRay = glm::mat4(modelMatrix);//Rayo se sujeta al frente del modelo
+		glm::mat4 modelMatrixRay = glm::mat4(modelMatrixTank_aux);//Rayo se sujeta al frente del modelo
 		modelMatrixRay = glm::translate(modelMatrixRay, glm::vec3(0.0f,1.0f,0.0f));
 		const float maxDistance = 10.0f;
 		glm::vec3 rayDirection = modelMatrixRay[2];
@@ -706,7 +747,7 @@ void applicationLoop() {
 		/*******************************************
 		 * Collider Spheres
 		 *******************************************/
-		glm::mat4 modelMatrixCollider = glm::mat4(modelMatrix);
+		glm::mat4 modelMatrixCollider = glm::mat4(modelTankMatrix);
 		AbstractModel::SBB bodyColliderSBB;
 		modelMatrixCollider = glm::scale(modelMatrixCollider, glm::vec3(1.0f));//Trasladar al centro del modelo
 		modelMatrixCollider = glm::translate(modelMatrixCollider,modelEjem.getSbb().c);
@@ -727,7 +768,7 @@ void applicationLoop() {
 		/*******************************************
 		 * Collider Boxes
 		 *******************************************/
-		modelMatrixCollider = glm::mat4(modelMatrix);
+		modelMatrixCollider = glm::mat4(modelTankMatrix);
 		AbstractModel::OBB bodyColliderOBB;
 		bodyColliderOBB.u = glm::quat_cast(modelMatrixCollider);//Orientación de la caja antes que la escala
 		modelMatrixCollider = glm::scale(modelMatrixCollider, glm::vec3(1.0f));
