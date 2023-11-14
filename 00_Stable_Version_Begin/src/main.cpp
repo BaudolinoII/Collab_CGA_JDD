@@ -23,7 +23,7 @@
 #include "Headers/Box.h"
 #include "Headers/Colisiones.h"
 #include "Headers/Cylinder.h"
-#include "Headers/FirstPersonCamera.h"
+#include "Headers/ThirdPersonCamera.h"
 #include "Headers/Model.h"
 #include "Headers/Shader.h"
 #include "Headers/Sphere.h"
@@ -33,15 +33,17 @@
 
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 
-int screenWidth;
-int screenHeight;
-
+//Ventana de la aplicación
+size_t screenWidth, screenHeight;
 GLFWwindow *window;
+
+//Camara 3 persona
+float lastMousePosX, offsetX = 0;
+float lastMousePosY, offsetY = 0;
+std::shared_ptr<ThirdPersonCamera> camera(new ThirdPersonCamera());
 
 //Shader con skybox, multiples luces, terreno del escenario, pruebas
 Shader shaderSkybox, shaderMulLighting, shaderTerrain, shaderTest;
-
-std::shared_ptr<FirstPersonCamera> camera(new FirstPersonCamera());
 
 Sphere skyboxSphere(20, 20);
 Box boxCesped; 
@@ -87,8 +89,7 @@ std::string fileNames[6] = {
 		"../Textures/mp_bloodvalley/blood-valley_lf.tga" };
 
 bool exitApp = false;
-int lastMousePosX, offsetX = 0;
-int lastMousePosY, offsetY = 0;
+
 //Variables de tiempo
 double deltaTime;
 double currTime, lastTime;
@@ -446,32 +447,32 @@ bool processInput(bool continueApplication) {
 		return false;
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera->moveFrontCamera(true, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera->moveFrontCamera(false, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera->moveRightCamera(false, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera->moveRightCamera(true, deltaTime);
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-		camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
-	offsetX = 0;
-	offsetY = 0;
+	//if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		//camera->moveFrontCamera(true, deltaTime);
+	//if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		//camera->moveFrontCamera(false, deltaTime);
+	//if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		//camera->moveRightCamera(false, deltaTime);
+	//if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		//camera->moveRightCamera(true, deltaTime);
+	//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
+	offsetX = 0.0f;
+	offsetY = 0.0f;
 
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
-		modelTankMatrix = glm::rotate(modelTankMatrix, 0.02f, glm::vec3(0, 1, 0));
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+		modelTankMatrix = glm::rotate(modelTankMatrix, 0.03f, glm::vec3(0, 1, 0));
 		animationTankIndex = 0;
-	} else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
-		modelTankMatrix = glm::rotate(modelTankMatrix, -0.02f, glm::vec3(0, 1, 0));
-		animationTankIndex = 0;
-	}
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
-		modelTankMatrix = glm::translate(modelTankMatrix, glm::vec3(0.0, 0.0, 0.02));
+	} else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+		modelTankMatrix = glm::rotate(modelTankMatrix, -0.03f, glm::vec3(0, 1, 0));
 		animationTankIndex = 0;
 	}
-	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
-		modelTankMatrix = glm::translate(modelTankMatrix, glm::vec3(0.0, 0.0, -0.02));
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+		modelTankMatrix = glm::translate(modelTankMatrix, glm::vec3(0.0, 0.0, 0.05));
+		animationTankIndex = 0;
+	}
+	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+		modelTankMatrix = glm::translate(modelTankMatrix, glm::vec3(0.0, 0.0, -0.05));
 		animationTankIndex = 0;
 	}
 	if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isNotJump){
@@ -505,6 +506,12 @@ bool processInput(bool continueApplication) {
 void applicationLoop() {
 	bool psi = true;
 	lastTime = TimeManager::Instance().GetTime();
+
+	glm::vec3 axis;
+	glm::vec3 target;
+	float angleTarget;
+
+	camera->setSensitivity(1.375f);
 
 	/*******************************************
 	* Propiedades Luz direccional
@@ -587,9 +594,23 @@ void applicationLoop() {
 		// Variables donde se guardan las matrices de cada articulacion por 1 frame
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) screenWidth / (float) screenHeight, 0.01f, 100.0f);
+		glm::mat4 modelCameraMatrix = glm::translate(modelTankMatrix, glm::vec3(-1.1f, 2.25f, 0.0f));
+		axis = glm::axis(glm::quat_cast(modelCameraMatrix));
+		angleTarget = glm::angle(glm::quat_cast(modelCameraMatrix));
+		target = modelCameraMatrix[3];
+
+		if(std::isnan(angleTarget))
+			angleTarget = 0.0;
+		if(axis.y < 0)
+			angleTarget = -angleTarget;
+
+		camera->setCameraTarget(target);
+		camera->setAngleTarget(angleTarget + 0.85f);
+		camera->setDistanceFromTarget(7.5f);
+		camera->updateCamera();
 		glm::mat4 view = camera->getViewMatrix();
 
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) screenWidth / (float) screenHeight, 0.01f, 100.0f);
 		// Settea la matriz de pruebas
 		shaderTest.setMatrix4("projection", 1, false, glm::value_ptr(projection));
 		shaderTest.setMatrix4("view", 1, false, glm::value_ptr(view));
@@ -683,12 +704,15 @@ void applicationLoop() {
 
 		//Torreta
 		modelMatrixTank_aux = glm::translate(modelTankMatrix_Chasis, glm::vec3(0.0f, 2.09877f, -0.211106f));
-		//modelMatrixTank_aux = glm::rotate(modelMatrixTank_aux, glm::radians(0.0f), glm::vec3(0, 1, 0));
+		modelMatrixTank_aux = glm::rotate(modelMatrixTank_aux, camera->getAngleAroundTarget() + 0.75f, glm::vec3(0, 1, 0)); //Movimiento de 360° para el eje Y
 		modelTank_Turret.render(modelMatrixTank_aux);
 
 		//Cañon
-		modelMatrixTank_aux = glm::translate( modelTankMatrix_Chasis, glm::vec3(0.0f, 2.01591f, 1.38962f));
-		//modelMatrixTank_aux = glm::rotate(modelMatrixTank_aux, glm::radians(0.0f), glm::vec3(0, 0, 1));
+		modelMatrixTank_aux = glm::translate( modelMatrixTank_aux, glm::vec3(0.0f, -0.08286f, 1.600726f));
+		if(camera->getPitch() >= 0.0f)
+			modelMatrixTank_aux = glm::rotate(modelMatrixTank_aux, 0.0f, glm::vec3(1, 0, 0)); //Movimiento limitado en X a 35° aproximadamente
+		else
+			modelMatrixTank_aux = glm::rotate(modelMatrixTank_aux, camera->getPitch(), glm::vec3(1, 0, 0)); //Movimiento limitado en X a 35° aproximadamente
 		modelTank_Cannon.render(modelMatrixTank_aux);
 		animationModelIndex = 1;
 
@@ -777,13 +801,13 @@ void applicationLoop() {
 		//Rayo con Esfera
 		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = lay_Colition_SBB.begin(); it != lay_Colition_SBB.end(); it++) {
 			if(testRaySBB(ray, std::get<0>(it->second))){
-				std::cout << "Hay colision entre el rayo y el modelo " << it->first << std::endl;
+				//std::cout << "Hay colision entre el rayo y el modelo " << it->first << std::endl;
 			}
 		}
 		//Rayo con Caja
 		for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator it = lay_Colition_OBB.begin(); it != lay_Colition_OBB.end(); it++) {
 			if(testRayOBB(ray, std::get<0>(it->second))){
-				std::cout << "Hay colision entre el rayo y el modelo " << it->first << std::endl;
+				//std::cout << "Hay colision entre el rayo y el modelo " << it->first << std::endl;
 			}
 		}
 		//Esfera con Esfera
@@ -791,7 +815,7 @@ void applicationLoop() {
 			bool isCollision = false;
 			for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator jt = lay_Colition_SBB.begin(); jt != lay_Colition_SBB.end(); jt++) {
 				if (it != jt && testSBBSBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					std::cout << "Hay collision entre " << it->first << " y el modelo " << jt->first << std::endl;
+					//std::cout << "Hay collision entre " << it->first << " y el modelo " << jt->first << std::endl;
 					isCollision = true;
 				}
 			}
@@ -802,7 +826,7 @@ void applicationLoop() {
 			bool isColision = false;
 			for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt = lay_Colition_OBB.begin(); jt != lay_Colition_OBB.end(); jt++) {
 				if (it != jt && testOBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					std::cout << "Hay colision entre " << it->first << " y el modelo" << jt->first << std::endl;
+					//std::cout << "Hay colision entre " << it->first << " y el modelo" << jt->first << std::endl;
 					isColision = true;
 				}
 			}
@@ -813,7 +837,7 @@ void applicationLoop() {
 			bool isCollision = false;
 			for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt = lay_Colition_OBB.begin(); jt != lay_Colition_OBB.end(); jt++) {
 				if (testSBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					std::cout << "Hay colision del " << it->first << " y el modelo" << jt->first << std::endl;
+					//std::cout << "Hay colision del " << it->first << " y el modelo" << jt->first << std::endl;
 					isCollision = true;
 					addOrUpdateCollisionDetection(collisionDetection, jt->first, true);
 				}

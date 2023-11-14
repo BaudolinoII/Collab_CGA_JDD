@@ -68,7 +68,6 @@ public:
 	glm::vec3 getFront() {
 		return this->front;
 	}
-
 	glm::vec3 getRight() {
 		return this->right;
 	}
@@ -102,7 +101,12 @@ public:
 	float getAngleTarget() {
 		return this->angleTarget;
 	}
-
+	float getAngleAroundTarget(){
+		return this->angleAroundTarget;
+	}
+	float getPitch(){
+		return this->pitch;
+	}
 	void setDistanceFromTarget(float distanceFromTarget) {
 		this->distanceFromTarget = distanceFromTarget;
 	}
