@@ -17,18 +17,24 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+//OpenAudio Library
+#include <AL/alut.h>
+#define N_BUFFERS 3	//Tipos de sonido
+#define N_SOURCES 3 //Fuentes de sonido
+#define N_ENVIRONMENTS 1
+
 // Include loader Model class
 #include "Headers/AbstractModel.h"
 #include "Headers/AnimationUtils.h"
 #include "Headers/Box.h"
 #include "Headers/Colisiones.h"
 #include "Headers/Cylinder.h"
-#include "Headers/ThirdPersonCamera.h"
 #include "Headers/Model.h"
 #include "Headers/Shader.h"
 #include "Headers/Sphere.h"
 #include "Headers/Texture.h"
 #include "Headers/Terrain.h"
+#include "Headers/ThirdPersonCamera.h"
 #include "Headers/TimeManager.h"
 
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
@@ -37,17 +43,44 @@
 size_t screenWidth, screenHeight;
 GLFWwindow *window;
 
+//Listeners
+ALfloat listenerPos[] = {0.0, 0.0, 0.0};
+ALfloat listenerVel[] = {0.0, 0.0, 0.0};
+ALfloat listenerOri[] = {0.0, 0.0, 1.0, 0.0, 1.0, 0.0};
+//Source 0
+ALfloat source0Pos[] = {0.0, 0.0, 0.0};
+ALfloat source0Vel[] = {0.0, 0.0, 0.0};
+//Source 1
+ALfloat source1Pos[] = {0.0, 0.0, 0.0};
+ALfloat source1Vel[] = {0.0, 0.0, 0.0};
+//Source 2
+ALfloat source2Pos[] = {0.0, 0.0, 0.0};
+ALfloat source2Vel[] = {0.0, 0.0, 0.0};
+//Buffers
+ALuint buffer[N_BUFFERS];
+ALuint source[N_SOURCES];
+ALuint environments[N_ENVIRONMENTS];
+//Configs
+ALsizei size, freq;
+ALvoid *data;
+int ch;
+ALboolean loop;
+std::vector<bool> sourcesPlay = {true,true,true};
+
 //Camara 3 persona
 float lastMousePosX, offsetX = 0;
 float lastMousePosY, offsetY = 0;
 std::shared_ptr<ThirdPersonCamera> camera(new ThirdPersonCamera());
 
 //Shader con skybox, multiples luces, terreno del escenario, pruebas
-Shader shaderSkybox, shaderMulLighting, shaderTerrain, shaderTest;
+Shader shaderSkybox, shaderMulLighting, shaderTerrain, shaderTest, shaderDepth, shaderDepthAux;
+
+const GLsizei SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
 Sphere skyboxSphere(20, 20);
 Sphere proyectileSphere(10, 10);
-Box boxCesped; 
+Box boxCesped;
+Box boxViewShader;
 
 //Objetos para pruebas de colisiones
 Sphere sphereDrawable(10, 10);
@@ -73,8 +106,8 @@ size_t animationTankIndex = 0;
 
 
 /////////////////////////////class Balistic{
-bool DH_trigger = false;
-const float DH_cooldown = 0.25f;//Enfriamiento
+bool DH_trigger = false, enableShoot = true;
+const float DH_cooldown = 2.25f;//Enfriamiento
 float DH_time_cooldown = 0.0f;//tiempo transcurrido para enfriamiento
 
 const size_t MAX_PROYECTILES = 20;
@@ -88,9 +121,12 @@ std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> lay_
 
 AbstractModel::SBB proyectile_Cage(glm::vec3(0.0f), 50.0f);//Jaula esférica para contener los proyectiles dentro del mapa
 Sphere drawableCage(10, 10, 50.0f);
-//};
+//};////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 GLuint textureTerrain[5]; // textureCespedID, textureTerrainRID, textureTerrainGID, textureTerrainBID, textureTerrainBlendMapID;
 GLuint skyboxTextureID;
+GLuint depthMap, depthMapFBO;
 
 GLenum types[6] = {
 GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -184,8 +220,12 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	// Inicialización de los shaders
 	shaderSkybox.initialize("../Shaders/skyBox.vs", "../Shaders/skyBox.fs");
-	shaderMulLighting.initialize("../Shaders/iluminacion_textura_animation.vs", "../Shaders/multipleLights.fs");
+	shaderMulLighting.initialize("../Shaders/iluminacion_textura_animation.vs","../Shaders/multipleLights.fs");
 	shaderTerrain.initialize("../Shaders/terrain.vs", "../Shaders/terrain.fs");
+	//shaderMulLighting.initialize("../Shaders/iluminacion_textura_animation_shadow.vs","../Shaders/multipleLights_shadow.fs");
+	//shaderTerrain.initialize("../Shaders/terrain_shadow.vs", "../Shaders/terrain_shadow.fs");
+	shaderDepthAux.initialize("../Shaders/texturizado.vs","../Shaders/texturizado_depth_view.fs");
+	shaderDepth.initialize("../Shaders/shadow_mapping_depth.vs", "../Shaders/shadow_mapping_depth.fs");
 	shaderTest.initialize("../Shaders/colorShader.vs", "../Shaders/colorShader.fs");
 
 	// Inicializacion de los objetos.
@@ -205,6 +245,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	boxCesped.init();
 	boxCesped.setShader(&shaderMulLighting);
+
+	boxViewShader.init();
+	boxViewShader.setShader(&shaderDepthAux);
 
 	sphereDrawable.init();
 	sphereDrawable.setShader(&shaderTest);
@@ -279,6 +322,61 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 			std::cout << "Failed to load texture" << std::endl;
 		text.freeImage();
 	}	
+	/*******************************************
+	 * OpenAL init
+	 *******************************************//*
+	alutInit(0, nullptr);
+	alListenerfv(AL_POSITION, listenerPos);
+	alListenerfv(AL_VELOCITY, listenerVel);
+	alListenerfv(AL_ORIENTATION, listenerOri);
+	alGetError(); // clear any error messages
+	if (alGetError() != AL_NO_ERROR) {
+		printf("- Error creating buffers !!\n");
+		exit(1);
+	}
+	else {
+		printf("init() - No errors yet.");
+	}
+	// Generate buffers, or else no sound will happen!
+	alGenBuffers(N_BUFFERS, buffer);
+	buffer[0] = alutCreateBufferFromFile("../sounds/fountain.wav");
+	buffer[1] = alutCreateBufferFromFile("../sounds/fire.wav");
+	buffer[2] = alutCreateBufferFromFile("../sounds/darth_vader.wav");
+	int errorAlut = alutGetError();
+	if (errorAlut != ALUT_ERROR_NO_ERROR){
+		printf("- Error open files with alut %d !!\n", errorAlut);
+		exit(2);
+	}
+
+	alGetError();
+	alGenSources(N_SOURCES, source);
+
+	if (alGetError() != AL_NO_ERROR) {
+		printf("- Error creating sources !!\n");
+		exit(2);
+	}
+	else {
+		printf("init - no errors after alGenSources\n");
+	}
+	for(size_t i = 0; i < N_SOURCES; i++){
+		alSourcef(source[i], AL_PITCH, 1.0f);
+		alSourcef(source[i], AL_GAIN, 3.0f);
+		alSourcei(source[i], AL_BUFFER, buffer[i]);
+		alSourcei(source[i], AL_LOOPING, AL_TRUE);
+		alSourcef(source[i], AL_MAX_DISTANCE, 200);
+	}*/
+	////////////////Inicializacion del FrameBufffer para almacenar la profundidad///////////
+	glGenFramebuffers(1,&depthMapFBO);
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 void destroy() {
 	glfwDestroyWindow(window);
@@ -337,21 +435,6 @@ void mouseButtonCallback(GLFWwindow *window, int button, int state, int mod) {
 		case GLFW_MOUSE_BUTTON_RIGHT://Escudo
 			break;
 		case GLFW_MOUSE_BUTTON_LEFT://Disparar
-		DH_trigger = true;
-		DH_time_cooldown = DH_cooldown;
-		std::cout << "Disparando " << count_proyectiles << " proyectiles" << std::endl;
-			break;
-		case GLFW_MOUSE_BUTTON_MIDDLE:
-			break;
-		}
-	}
-	if (state == GLFW_RELEASE) {
-		switch (button) {
-		case GLFW_MOUSE_BUTTON_RIGHT://Escudo
-			break;
-		case GLFW_MOUSE_BUTTON_LEFT://Disparar
-			DH_trigger = false;
-			DH_time_cooldown = 0;
 			break;
 		case GLFW_MOUSE_BUTTON_MIDDLE:
 			break;
@@ -398,23 +481,18 @@ bool processInput(bool continueApplication) {
 		isNotJump = false;
 	}
 	
-	
-	//Hacer parte de un método pidiendo current y deltaTime
-	if(DH_trigger){
-			if(DH_time_cooldown >= DH_cooldown){
-			DH_time_cooldown -= DH_cooldown;
-			if(vec_proyectile.size() < MAX_PROYECTILES){//Añadir proyectiles
-				float timeNow = currTime;
-				vec_startTime.push_back(timeNow);
-				vec_proy_pos.push_back(glm::mat4(modelMatrixTank_Canon));
-				vec_proyectile.push_back(glm::normalize(modelMatrixTank_Canon[3] - glm::vec4(modelTank_Turret.getSbb().c, 1.0f)));
-				count_proyectiles++;
-				std::cout << "Se ha generado correctamente un proyectil, existen: " << count_proyectiles << std::endl;
-			}
-		}
-		DH_time_cooldown += deltaTime;
+	if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && enableShoot){
+		enableShoot = false;
+		DH_trigger = true;
+		DH_time_cooldown = DH_cooldown;
+		std::cout << "Disparando proyectiles" << std::endl;
+	} else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE){
+		enableShoot = true;
+		DH_trigger = false;
+		DH_time_cooldown = 0.0f;
+		//std::cout << "Deja de disparar" << std::endl;
 	}
-	
+
 	/*
 	// Seleccionar modelo
 	if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS){
@@ -651,6 +729,26 @@ void applicationLoop() {
 		animationTankIndex = 1;
 
 		/*******************************************
+		 * Generacion de proyectiles
+		 *******************************************/
+		if(DH_trigger){
+				if(DH_time_cooldown >= DH_cooldown){
+					std::cout << "Cooldown " << DH_time_cooldown << " / " << DH_cooldown << std::endl;
+					DH_time_cooldown -= DH_cooldown;
+					if(vec_proyectile.size() < MAX_PROYECTILES){//Añadir proyectiles
+						float timeNow = currTime;
+						vec_startTime.push_back(timeNow);
+						vec_proy_pos.push_back(glm::mat4(modelMatrixTank_Canon));
+						vec_proyectile.push_back(glm::normalize(modelMatrixTank_Canon[3] - glm::vec4(modelTank_Turret.getSbb().c, 1.0f)));
+						count_proyectiles++;
+						std::cout << "Se ha generado correctamente un proyectil, existen: " << count_proyectiles << std::endl;
+						std::cout << "Generado en (" << vec_proy_pos.at(count_proyectiles - 1)[3].x << " ," << vec_proy_pos.at(count_proyectiles - 1)[3].y << " ," << vec_proy_pos.at(count_proyectiles - 1)[3].z << ")" << std::endl;
+					}
+			}
+			DH_time_cooldown += deltaTime;
+		}
+
+		/*******************************************
 		 * Skybox
 		 *******************************************/
 		GLint oldCullFaceMode;
@@ -677,7 +775,7 @@ void applicationLoop() {
 		 *******************************************/
 		for(size_t i = 0; i < count_proyectiles; i++){
 			AbstractModel::SBB bodyColliderSBB;
-			glm::mat4 modelMatrixCollider = glm::translate(vec_proy_pos[i], modelTank_Proyectile.getSbb().c);//Localización al la salida del cañon al centro del proyectil
+			glm::mat4 modelMatrixCollider = glm::mat4(1.0f);
 			float dTime = currTime - vec_startTime[i];
 			//Velocidad aplicada en XZ, Gravedad colocada a Y
 			modelMatrixCollider[3][0] = vec_proyectile[i][0] * SPEED_PROY * dTime + vec_proy_pos[i][3][0];
@@ -689,7 +787,7 @@ void applicationLoop() {
 
 			addOrUpdateColliders(lay_SBB_Proyectile_Player, "Proyectile["+ std::to_string(i) + "]", bodyColliderSBB, vec_proy_pos[i]);//Se carga en la capa correspondiente
 			modelTank_Proyectile.render(modelMatrixCollider);
-			std::cout << "Proyectil " << i << " actualizado correctamente de " << count_proyectiles << std::endl;	
+			std::cout << "Proyectil " << i << " actualizado correctamente" << std::endl;	
 		}
 		
 		/*******************************************
@@ -755,6 +853,7 @@ void applicationLoop() {
 		size_t index_proyectile = 0;//Se descartará todo proyectil que salga del terreno
 		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = lay_SBB_Proyectile_Player.begin(); it != lay_SBB_Proyectile_Player.end(); it++){
 			if(!testSBBSBB(proyectile_Cage, std::get<0>(it->second))){//Si el proyectil sale de la jaula
+				std::cout << "Destruido en (" << std::get<0>(it->second).c.x << " ," <<  std::get<0>(it->second).c.y << " ," <<  std::get<0>(it->second).c.z << ")" << std::endl;
 				vec_startTime.erase(vec_startTime.begin() + index_proyectile);
 				vec_proy_pos.erase(vec_proy_pos.begin() + index_proyectile);
 				vec_proyectile.erase(vec_proyectile.begin() + index_proyectile);
@@ -762,11 +861,12 @@ void applicationLoop() {
 				count_proyectiles--;
 				if(count_proyectiles < 0)
 					count_proyectiles = 0;
-			}else if(std::get<0>(it->second).c[1] <= terrain.getHeightTerrain(std::get<0>(it->second).c[0], std::get<0>(it->second).c[2])){//Si el proyectil está por debajo de la altura del terreno
+			}else if(std::get<0>(it->second).c.y < terrain.getHeightTerrain(std::get<0>(it->second).c[0], std::get<0>(it->second).c[2])){//Si el proyectil está por debajo de la altura del terreno
+				std::cout << "Destruido en (" << std::get<0>(it->second).c.x << " ," <<  std::get<0>(it->second).c.y << " ," <<  std::get<0>(it->second).c.z << ")" << std::endl;
 				vec_startTime.erase(vec_startTime.begin() + index_proyectile);
 				vec_proy_pos.erase(vec_proy_pos.begin() + index_proyectile);
 				vec_proyectile.erase(vec_proyectile.begin() + index_proyectile);
-				std::cout << "Proyectil " << index_proyectile << " descartado, choco en el suelo" << std::endl;	
+				std::cout << "Proyectil " << index_proyectile << " descartado, choco en el suelo a: " << terrain.getHeightTerrain(std::get<0>(it->second).c[0], std::get<0>(it->second).c[2]) << "m de altura"<< std::endl;	
 				count_proyectiles--;
 				if(count_proyectiles < 0)
 					count_proyectiles = 0;
@@ -841,6 +941,38 @@ void applicationLoop() {
 			
 		}
 		glfwSwapBuffers(window);
+
+		/****************OpenAL Source Data*******************//*
+		source0Pos[0] = modelTankMatrix[3].x;
+		source0Pos[1] = modelTankMatrix[3].y;
+		source0Pos[2] = modelTankMatrix[3].z;
+
+		listenerPos[0] = modelTankMatrix[3].x;
+		listenerPos[1] = modelTankMatrix[3].y;
+		listenerPos[2] = modelTankMatrix[3].z;
+
+		glm::vec3 upModel = glm::normalize(modelTankMatrix[1]);
+		glm::vec3 frontModel = glm::normalize(modelTankMatrix[2]);
+
+		listenerOri[0] = frontModel.x;
+		listenerOri[1] = frontModel.y;
+		listenerOri[2] = frontModel.z;
+		listenerOri[3] = upModel.x;
+		listenerOri[4] = upModel.y;
+		listenerOri[5] = upModel.z;
+
+		alSourcefv(source[0], AL_POSITION, source0Pos);
+		alSourcefv(source[0], AL_VELOCITY, source0Vel);
+		alListenerfv(AL_POSITION, listenerPos);
+		alListenerfv(AL_ORIENTATION, listenerOri);
+
+		for(size_t i = 0; i < sourcesPlay.size(); i++)
+			if(sourcesPlay[i]){
+				sourcesPlay[i] = false;
+				alSourcePlay(source[i]);
+				alSourceStop(source[i]);
+			}
+		*/
 	}
 }
 

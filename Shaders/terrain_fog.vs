@@ -12,6 +12,9 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 
+uniform float density = 0.008;
+uniform float gradient = 1.5;
+
 void main(){
 	vec4 fragPosWorldSpace = model * vec4(in_position, 1.0);
 	gl_Position = projection * view * fragPosWorldSpace;
@@ -19,5 +22,9 @@ void main(){
 	vec3 fragPosViewSpace = vec3(view * fragPosWorldSpace);
 	our_normal = mat3(transpose(inverse(model))) * in_normal;
 	our_uv = in_uv;
+
+	float distance = length(fragPosViewSpace);
+	visibility = exp(-pow(distance*density,gradient));
+	visibility = clamp(visibility,0.0,1.0);
 }
 
