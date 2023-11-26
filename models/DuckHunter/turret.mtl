@@ -1,10 +1,40 @@
-# Blender MTL File: 'tank_Duck_Hunter.blend'
-# Material Count: 1
+# Blender 4.0.1 MTL File: 'tank_Duck_Hunter.blend'
+# www.blender.org
+
+newmtl Acero_Claro
+Ns 250.000000
+Ka 0.500000 0.500000 0.500000
+Kd 0.375005 0.375005 0.375005
+Ks 0.700000 0.700000 0.700000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump -bm 2.500000 texture/MetalSteelBrushed/MetalSteelBrushed001_NRM_2K_METALNESS.png
+
+newmtl Acero_Oscuro
+Ns 250.000000
+Ka 0.327273 0.327273 0.327273
+Kd 0.800000 0.800000 0.800000
+Ks 0.245455 0.245455 0.245455
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump -bm 2.500000 texture/MetalSteelBrushed/MetalSteelBrushed001_NRM_2K_METALNESS.png
+
+newmtl Cromo
+Ka 0.750000 0.750000 0.750000
+Kd 0.137175 0.180045 0.208822
+Ks 0.764545 0.764545 0.764545
+Ke 0.000766 0.000000 0.018303
+Ni 1.450000
+d 1.000000
+illum 3
+map_Ns texture/MetalCladdingFrame/MetalCladdingFrame002_COL_2K.jpg
 
 newmtl DH_Material
-Ns 250.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
@@ -12,3 +42,23 @@ d 1.000000
 illum 2
 map_Kd DH_Diffuse.png
 map_Ns DH_Specular.png
+
+newmtl LightingBlue
+Ns 660.525635
+Ka 0.320000 0.320000 0.320000
+Kd 0.210975 0.499433 0.800000
+Ks 0.670909 0.670909 0.670909
+Ke 0.039915 0.000000 4.033831
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl Titanio
+Ka 0.658182 0.658182 0.658182
+Kd 0.772505 0.772505 0.772505
+Ks 0.816364 0.816364 0.816364
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Ns texture/MetalCladdingFrame/MetalCladdingFrame002_REFL_2K.jpg

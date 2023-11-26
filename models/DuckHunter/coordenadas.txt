@@ -1,8 +1,8 @@
 Coordenadas Oruga Front Right:
 X	-1.43085 m
-Y	-1.73221 m
+Y	-0.107476 m
 Z	0.64637 m
-glm::vec3(-1.43085f, 0.64637f, 1.73221f);
+glm::vec3(-1.43085f, 0.64637f, 0.107476f);
 
 Coordenadas Torreta:
 X	0 m

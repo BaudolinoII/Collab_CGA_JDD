@@ -3,3 +3,7 @@ project(CGA VERSION 0.1.0 LANGUAGES C CXX)
 
 add_subdirectory(CGALib)
 add_subdirectory(00_Stable_Version_Begin)
+add_subdirectory(01_Clear_Template)
+add_subdirectory(02_Main_Character)
+add_subdirectory(03_Animation)
+add_subdirectory(04_Colition_Layers)
