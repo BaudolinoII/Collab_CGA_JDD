@@ -17,15 +17,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-//OpenAudio Library
-#include <AL/alut.h>
-#define N_BUFFERS 3	//Tipos de sonido
-#define N_SOURCES 3 //Fuentes de sonido
-#define N_ENVIRONMENTS 1
 
 // Include loader Model class
-#include "Headers/AbstractModel.h"
-#include "Headers/AnimationUtils.h"
 #include "Headers/Box.h"
 #include "Headers/Colisiones.h"
 #include "Headers/Cylinder.h"
@@ -34,7 +27,7 @@
 #include "Headers/Sphere.h"
 #include "Headers/Texture.h"
 #include "Headers/Terrain.h"
-#include "Headers/ThirdPersonCamera.h"
+#include "Headers/FirstPersonCamera.h"
 #include "Headers/TimeManager.h"
 
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
@@ -43,86 +36,172 @@
 size_t screenWidth, screenHeight;
 GLFWwindow *window;
 
-//Listeners
-ALfloat listenerPos[] = {0.0, 0.0, 0.0};
-ALfloat listenerVel[] = {0.0, 0.0, 0.0};
-ALfloat listenerOri[] = {0.0, 0.0, 1.0, 0.0, 1.0, 0.0};
-//Source 0
-ALfloat source0Pos[] = {0.0, 0.0, 0.0};
-ALfloat source0Vel[] = {0.0, 0.0, 0.0};
-//Source 1
-ALfloat source1Pos[] = {0.0, 0.0, 0.0};
-ALfloat source1Vel[] = {0.0, 0.0, 0.0};
-//Source 2
-ALfloat source2Pos[] = {0.0, 0.0, 0.0};
-ALfloat source2Vel[] = {0.0, 0.0, 0.0};
-//Buffers
-ALuint buffer[N_BUFFERS];
-ALuint source[N_SOURCES];
-ALuint environments[N_ENVIRONMENTS];
-//Configs
-ALsizei size, freq;
-ALvoid *data;
-int ch;
-ALboolean loop;
-std::vector<bool> sourcesPlay = {true,true,true};
-
 //Camara 3 persona
 float lastMousePosX, offsetX = 0;
 float lastMousePosY, offsetY = 0;
-std::shared_ptr<ThirdPersonCamera> camera(new ThirdPersonCamera());
+std::shared_ptr<FirstPersonCamera> camera(new FirstPersonCamera());
 
 //Shader con skybox, multiples luces, terreno del escenario, pruebas
-Shader shaderSkybox, shaderMulLighting, shaderTerrain, shaderTest, shaderDepth, shaderDepthAux;
+Shader shaderSkybox, shaderMulLighting, shaderTerrain, shaderTest;
 
 const GLsizei SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
 Sphere skyboxSphere(20, 20);
-Sphere proyectileSphere(10, 10);
 Box boxCesped;
-Box boxViewShader;
 
-//Objetos para pruebas de colisiones
-Sphere sphereDrawable(10, 10);
-Box boxDrawable;
-Cylinder rayDrawable(10,10);
+//Físicas
+const float GRAVITY = 2.8f;
+
+class Frame {//Variables para GUARDAR Key Frames tanto vectoriales como escalares
+	public: std::vector<float> scl_var;
+	public: std::vector<glm::vec3> vec_var;
+	public: Frame(const size_t scl_com, const size_t vec_com) {
+		this->setComplexity(scl_com, vec_com);
+	}
+	private: void setComplexity(const size_t scl_com, const size_t vec_com){
+		for(size_t i = 0; i < scl_com; i++)
+			this->scl_var.push_back(0.0f);
+		for(size_t i = 0; i < vec_com; i++)
+			this->vec_var.push_back(glm::vec3(0.0f));
+	}
+};
+
+class Routine {
+	private: std::vector<Frame> KeyFrames;
+	private: size_t complexity_scl, complexity_vec, currDetail, nFrames, detail;
+	private: int currFrame;
+	private: std::vector<float> delta_scl;
+	private: std::vector<float> curr_value_scl;
+	private: std::vector<glm::vec3> delta_vec;
+	private: std::vector<glm::vec3> curr_value_vec;
+	private: bool play, cicle;
+
+	public: Routine(const size_t complexity_scl, const size_t complexity_vec, const size_t nFrames, const size_t detail, const bool cicle = false) {
+		this->nFrames = nFrames;
+		this->complexity_scl = complexity_scl;
+		this->complexity_vec = complexity_vec;
+		for (size_t i = 0; i < this->nFrames; i++)
+			this->KeyFrames.push_back(Frame(this->complexity_scl, this->complexity_vec));
+		for (unsigned int i = 0; i < this->complexity_scl; i++) { 
+			this->curr_value_scl.push_back(0.0f); 
+			this->delta_scl.push_back(0.0f); 
+		}
+		for (unsigned int i = 0; i < this->complexity_vec; i++) {
+			this->curr_value_vec.push_back(glm::vec3(0.0f));
+			this->delta_vec.push_back(glm::vec3(0.0f));
+		}
+		this->currFrame = 0;
+		this->currDetail = 0;
+		this->detail = detail;
+		this->play = false; this->cicle = cicle;
+	}
+	
+	public: void interpolation() {
+		for (size_t i = 0; i < complexity_scl; i++)
+			delta_scl[i] = (KeyFrames[currFrame + 1].scl_var[i] - KeyFrames[currFrame].scl_var[i]) / (float)detail;
+		for (size_t i = 0; i < complexity_vec; i++){
+			delta_vec[i][0] = (KeyFrames[currFrame + 1].vec_var[i][0] - KeyFrames[currFrame].vec_var[i][0]) / (float)detail;
+			delta_vec[i][1] = (KeyFrames[currFrame + 1].vec_var[i][1] - KeyFrames[currFrame].vec_var[i][1]) / (float)detail;
+			delta_vec[i][2] = (KeyFrames[currFrame + 1].vec_var[i][2] - KeyFrames[currFrame].vec_var[i][2]) / (float)detail;
+		}
+	}
+	public: void setAtCero() {
+		for (size_t i = 0; i < complexity_scl; i++) curr_value_scl[i] = KeyFrames[0].scl_var[i];
+		for (size_t i = 0; i < complexity_vec; i++) curr_value_vec[i] = KeyFrames[0].vec_var[i];
+		currFrame = 0;
+		currDetail = 0;
+		interpolation();
+	}
+	public: void animacion() {//Movimiento del personaje
+		if (play)
+			if (currDetail >= detail) {//end of animation between frames?
+				if (currFrame < nFrames - 2) {//Next frame interpolations
+					currDetail = 0; //Reset counter
+					currFrame++;
+					interpolation();
+				}else if (cicle) //end of total animation?
+						  setAtCero();
+					  else
+						  play = false;
+			}else{
+				for (unsigned int i = 0; i < complexity_scl; i++)//Cambio de las variables
+					curr_value_scl[i] += delta_scl[i];
+				for (unsigned int i = 0; i < complexity_vec; i++){//Cambio de las variables
+					curr_value_vec[i][0] += delta_vec[i][0];
+					curr_value_vec[i][1] += delta_vec[i][1];
+					curr_value_vec[i][2] += delta_vec[i][2];
+				}
+				currDetail++;
+			}
+	}
+	public: float getScale(size_t index){
+		if(index < this->complexity_scl)
+			return this->curr_value_scl[index];
+		return 0.0f;
+	}
+	public: glm::vec3 getVector(size_t index){
+		if(index < this->complexity_vec)
+			return this->curr_value_vec[index];
+		return glm::vec3(0.0f);
+	}
+	public: void setKeyFrame(size_t KFindex, size_t index, float scl, glm::vec3 vec){
+		if(KFindex >= this->KeyFrames.size())
+			return;
+		if(index < this->complexity_scl)
+			this->KeyFrames[KFindex].scl_var[index] = scl;
+		if(index < this->complexity_vec)
+			this->KeyFrames[KFindex].vec_var[index] = vec;
+	}
+	public: void setKeyFrame(size_t KFindex, size_t index, glm::vec3 vec){
+		if(KFindex >= this->KeyFrames.size())
+			return;
+		if(index < this->complexity_scl)
+			if(index > 0)
+				this->KeyFrames[KFindex].scl_var[index] = this->KeyFrames[KFindex].scl_var[index - 1];
+			else
+				this->KeyFrames[KFindex].scl_var[index] = 0.0f;
+		if(index < this->complexity_vec)	
+			this->KeyFrames[KFindex].vec_var[index] = vec;
+	}
+	public: void setKeyFrame(size_t KFindex, size_t index, float scl){
+		if(KFindex >= this->KeyFrames.size())
+			return;
+		if(index < this->complexity_scl)
+			this->KeyFrames[KFindex].scl_var[index] = scl;
+		if(index < this->complexity_vec)
+			if(index > 0)
+				this->KeyFrames[KFindex].vec_var[index] = this->KeyFrames[KFindex].vec_var[index - 1];
+			else
+				this->KeyFrames[KFindex].vec_var[index] = glm::vec3(0.0f);
+	}
+	public: void setPlay(const bool play){
+		this->play = play;
+	}
+};
+
+//Modelo
+Model mainCharacter;
+glm::mat4 mainCharMatrix = glm::mat4(1.0f);
+size_t animationMCIndex = 0;
+double startTimeJump = 0.0f, tmv = 0.0f;
+bool isNotJump = true;
+
+Routine rt1(1, 1 ,5 ,300);
+
+//Clones
+size_t n_Clones = 5;
+Model cloneModel;
+std::vector<size_t> vec_animationCLIndex;
+std::vector<glm::vec3> vec_cloneInitialPosition = {
+	glm::vec3(-7.03, 0, -19.14),
+	glm::vec3(24.41, 0, -34.57),
+	glm::vec3(-10.15, 0, -54.1),
+	glm::vec3(-24.41, 0, 34.57),
+	glm::vec3(10.15, 0, 54.1)
+};
 
 //Informacion de las alturas del terreno
 Terrain terrain(-1, -1, 200, 8, "../Textures/heightmap.png");
-
-//Elementos de un modelo
-Model modelEjem;
-
-//Elementos del Tanque Duck-Hunter
-Model modelTank_Chasis;
-Model modelTank_Turret;
-Model modelTank_Cannon;
-Model modelTank_Track;
-Model modelTank_Proyectile;
-glm::mat4 modelTankMatrix = glm::mat4(1.0f);
-glm::mat4 modelMatrixTank_Canon = glm::mat4(1.0f);
-size_t animationTankIndex = 0;
-
-
-
-/////////////////////////////class Balistic{
-bool DH_trigger = false, enableShoot = true;
-const float DH_cooldown = 2.25f;//Enfriamiento
-float DH_time_cooldown = 0.0f;//tiempo transcurrido para enfriamiento
-
-const size_t MAX_PROYECTILES = 20;
-const float BALISTIC = 0.8f;//Gravedad del proyectil
-const float SPEED_PROY = 1.1f;//Velocidad del proyectil
-int count_proyectiles = 0;
-std::vector<float> vec_startTime = {};//Tiempo de inicio
-std::vector<glm::vec3> vec_proyectile = {}; //Lista de vectores de la direccion del proyectil
-std::vector<glm::mat4> vec_proy_pos = {};   //Lista de matrices para la posicion de cada vector
-std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> lay_SBB_Proyectile_Player;//Mapa de colisiones
-
-AbstractModel::SBB proyectile_Cage(glm::vec3(0.0f), 50.0f);//Jaula esférica para contener los proyectiles dentro del mapa
-Sphere drawableCage(10, 10, 50.0f);
-//};////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 GLuint textureTerrain[5]; // textureCespedID, textureTerrainRID, textureTerrainGID, textureTerrainBID, textureTerrainBlendMapID;
 GLuint skyboxTextureID;
@@ -150,17 +229,6 @@ bool exitApp = false;
 double deltaTime;
 double currTime, lastTime;
 
-//Físicas Generales
-const float GRAVITY = 3.62f;
-double tmv = 0.0, startTimeJump = 0.0;
-bool isNotJump = true;
-
-//Colisiones
-std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> lay_Colition_SBB;
-std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> lay_Colition_OBB;
-std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>> lay_Colition_RAY;
-std::map<std::string, bool> collisionDetection;
-
 // Se definen todos las funciones.
 void init(int width, int height, std::string strTitle, bool bFullScreen);
 void destroy();
@@ -169,6 +237,15 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mode
 void mouseCallback(GLFWwindow *window, double xpos, double ypos);
 void mouseButtonCallback(GLFWwindow *window, int button, int state, int mod);
 bool processInput(bool continueApplication = true);
+
+void init_routines(){
+	rt1.setKeyFrame(0, 0, 90.0f, glm::vec3(-7.03, 0, -19.14));
+	rt1.setKeyFrame(1, 0, 80.0f, glm::vec3(24.41, 0, -34.57));
+	rt1.setKeyFrame(2, 0, 70.0f, glm::vec3(-10.15, 0, -54.1));
+	rt1.setKeyFrame(3, 0, 60.0f, glm::vec3(-24.41, 0, 34.57));
+	rt1.setKeyFrame(4, 0, 50.0f, glm::vec3( 10.15, 0, 54.1));
+	rt1.setAtCero();
+}
 
 // Implementacion de todas las funciones.
 void init(int width, int height, std::string strTitle, bool bFullScreen) {
@@ -222,44 +299,14 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	shaderSkybox.initialize("../Shaders/skyBox.vs", "../Shaders/skyBox.fs");
 	shaderMulLighting.initialize("../Shaders/iluminacion_textura_animation.vs","../Shaders/multipleLights.fs");
 	shaderTerrain.initialize("../Shaders/terrain.vs", "../Shaders/terrain.fs");
-	//shaderMulLighting.initialize("../Shaders/iluminacion_textura_animation_shadow.vs","../Shaders/multipleLights_shadow.fs");
-	//shaderTerrain.initialize("../Shaders/terrain_shadow.vs", "../Shaders/terrain_shadow.fs");
-	shaderDepthAux.initialize("../Shaders/texturizado.vs","../Shaders/texturizado_depth_view.fs");
-	shaderDepth.initialize("../Shaders/shadow_mapping_depth.vs", "../Shaders/shadow_mapping_depth.fs");
-	shaderTest.initialize("../Shaders/colorShader.vs", "../Shaders/colorShader.fs");
 
 	// Inicializacion de los objetos.
 	skyboxSphere.init();
 	skyboxSphere.setShader(&shaderSkybox);
 	skyboxSphere.setScale(glm::vec3(20.0f));
 
-	proyectileSphere.init();
-	proyectileSphere.setShader(&shaderSkybox);
-	proyectileSphere.setScale(glm::vec3(1.0f));
-	proyectileSphere.setColor(glm::vec4(0.0f, 0.5f, 0.5f, 1.0f));
-
-	drawableCage.init();
-	drawableCage.setShader(&shaderTest);
-	drawableCage.setScale(glm::vec3(1.0f));
-	drawableCage.setColor(glm::vec4(1.0f));
-
 	boxCesped.init();
 	boxCesped.setShader(&shaderMulLighting);
-
-	boxViewShader.init();
-	boxViewShader.setShader(&shaderDepthAux);
-
-	sphereDrawable.init();
-	sphereDrawable.setShader(&shaderTest);
-	sphereDrawable.setColor(glm::vec4(1.0f));
-
-	boxDrawable.init();
-	boxDrawable.setShader(&shaderTest);
-	boxDrawable.setColor(glm::vec4(1.0f));
-
-	rayDrawable.init();
-	rayDrawable.setShader(&shaderTest);
-	rayDrawable.setColor(glm::vec4(1.0f));
 
 	// Terreno
 	terrain.init();
@@ -267,17 +314,16 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	camera->setPosition(glm::vec3(0.0, 3.0, 4.0));
 
-	//Tanque Duck-Hunter
-	modelTank_Chasis.loadModel("../models/DuckHunter/chasis.obj");
-	modelTank_Chasis.setShader(&shaderMulLighting);
-	modelTank_Turret.loadModel("../models/DuckHunter/turret.obj");
-	modelTank_Turret.setShader(&shaderMulLighting);
-	modelTank_Cannon.loadModel("../models/DuckHunter/cannon.fbx");
-	modelTank_Cannon.setShader(&shaderMulLighting);
-	modelTank_Track.loadModel("../models/DuckHunter/track.fbx");
-	modelTank_Track.setShader(&shaderMulLighting);
-	modelTank_Proyectile.loadModel("../models/DuckHunter/Proyectile.obj");
-	modelTank_Proyectile.setShader(&shaderMulLighting);
+	//Modelo
+	mainCharacter.loadModel("../models/mayow/personaje2.fbx");
+	mainCharacter.setShader(&shaderMulLighting);
+
+	//Clones
+	cloneModel.loadModel("../models/mayow/personaje2.fbx"); 
+	cloneModel.setShader(&shaderMulLighting);
+
+	for(size_t i = 0; i < n_Clones; i++)
+		vec_animationCLIndex.push_back(0);
 
 	// Carga de texturas para el skybox
 	Texture skyboxTexture = Texture("");
@@ -322,61 +368,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 			std::cout << "Failed to load texture" << std::endl;
 		text.freeImage();
 	}	
-	/*******************************************
-	 * OpenAL init
-	 *******************************************//*
-	alutInit(0, nullptr);
-	alListenerfv(AL_POSITION, listenerPos);
-	alListenerfv(AL_VELOCITY, listenerVel);
-	alListenerfv(AL_ORIENTATION, listenerOri);
-	alGetError(); // clear any error messages
-	if (alGetError() != AL_NO_ERROR) {
-		printf("- Error creating buffers !!\n");
-		exit(1);
-	}
-	else {
-		printf("init() - No errors yet.");
-	}
-	// Generate buffers, or else no sound will happen!
-	alGenBuffers(N_BUFFERS, buffer);
-	buffer[0] = alutCreateBufferFromFile("../sounds/fountain.wav");
-	buffer[1] = alutCreateBufferFromFile("../sounds/fire.wav");
-	buffer[2] = alutCreateBufferFromFile("../sounds/darth_vader.wav");
-	int errorAlut = alutGetError();
-	if (errorAlut != ALUT_ERROR_NO_ERROR){
-		printf("- Error open files with alut %d !!\n", errorAlut);
-		exit(2);
-	}
-
-	alGetError();
-	alGenSources(N_SOURCES, source);
-
-	if (alGetError() != AL_NO_ERROR) {
-		printf("- Error creating sources !!\n");
-		exit(2);
-	}
-	else {
-		printf("init - no errors after alGenSources\n");
-	}
-	for(size_t i = 0; i < N_SOURCES; i++){
-		alSourcef(source[i], AL_PITCH, 1.0f);
-		alSourcef(source[i], AL_GAIN, 3.0f);
-		alSourcei(source[i], AL_BUFFER, buffer[i]);
-		alSourcei(source[i], AL_LOOPING, AL_TRUE);
-		alSourcef(source[i], AL_MAX_DISTANCE, 200);
-	}*/
-	////////////////Inicializacion del FrameBufffer para almacenar la profundidad///////////
-	glGenFramebuffers(1,&depthMapFBO);
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 void destroy() {
 	glfwDestroyWindow(window);
@@ -388,19 +379,10 @@ void destroy() {
 
 	skyboxSphere.destroy();
 
-	proyectileSphere.destroy();
-	drawableCage.destroy();
-
-	sphereDrawable.destroy();
-	boxCesped.destroy();
-	boxDrawable.destroy();
 	terrain.destroy();
 
-	modelTank_Chasis.destroy();
-	modelTank_Turret.destroy();
-	modelTank_Cannon.destroy();
-	modelTank_Track.destroy();
-	modelTank_Proyectile.destroy();
+	mainCharacter.destroy();
+	cloneModel.destroy();
 
 	for(size_t i = 0; i < 5; i++){
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -410,6 +392,7 @@ void destroy() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	glDeleteTextures(1, &skyboxTextureID);
 }
+
 void reshapeCallback(GLFWwindow *Window, int widthRes, int heightRes) {
 	screenWidth = widthRes;
 	screenHeight = heightRes;
@@ -432,9 +415,9 @@ void mouseCallback(GLFWwindow *window, double xpos, double ypos) {
 void mouseButtonCallback(GLFWwindow *window, int button, int state, int mod) {
 	if (state == GLFW_PRESS) {
 		switch (button) {
-		case GLFW_MOUSE_BUTTON_RIGHT://Escudo
+		case GLFW_MOUSE_BUTTON_RIGHT:
 			break;
-		case GLFW_MOUSE_BUTTON_LEFT://Disparar
+		case GLFW_MOUSE_BUTTON_LEFT:
 			break;
 		case GLFW_MOUSE_BUTTON_MIDDLE:
 			break;
@@ -446,69 +429,40 @@ bool processInput(bool continueApplication) {
 		return false;
 	}
 
-	//if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		//camera->moveFrontCamera(true, deltaTime);
-	//if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		//camera->moveFrontCamera(false, deltaTime);
-	//if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		//camera->moveRightCamera(false, deltaTime);
-	//if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		//camera->moveRightCamera(true, deltaTime);
-	//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-	camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera->moveFrontCamera(true, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera->moveFrontCamera(false, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera->moveRightCamera(false, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera->moveRightCamera(true, deltaTime);
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
 	offsetX = 0.0f;
 	offsetY = 0.0f;
 
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-		modelTankMatrix = glm::rotate(modelTankMatrix, 0.03f, glm::vec3(0, 1, 0));
-		animationTankIndex = 0;
-	} else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-		modelTankMatrix = glm::rotate(modelTankMatrix, -0.03f, glm::vec3(0, 1, 0));
-		animationTankIndex = 0;
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+		mainCharMatrix = glm::rotate(mainCharMatrix, 0.03f, glm::vec3(0, 1, 0));
+		animationMCIndex = 0;
+	} else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+		mainCharMatrix = glm::rotate(mainCharMatrix, -0.03f, glm::vec3(0, 1, 0));
+		animationMCIndex = 0;
 	}
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-		modelTankMatrix = glm::translate(modelTankMatrix, glm::vec3(0.0, 0.0, 0.05));
-		animationTankIndex = 0;
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+		mainCharMatrix = glm::translate(mainCharMatrix, glm::vec3(0.0, 0.0, -0.05));
+		animationMCIndex = 0;
 	}
-	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-		modelTankMatrix = glm::translate(modelTankMatrix, glm::vec3(0.0, 0.0, -0.05));
-		animationTankIndex = 0;
+	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+		mainCharMatrix = glm::translate(mainCharMatrix, glm::vec3(0.0, 0.0, 0.05));
+		animationMCIndex = 0;
 	}
 	if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isNotJump){
-		animationTankIndex = 0;
+		animationMCIndex = 0;
 		startTimeJump = currTime;
 		tmv = 0;
 		isNotJump = false;
 	}
-	
-	if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && enableShoot){
-		enableShoot = false;
-		DH_trigger = true;
-		DH_time_cooldown = DH_cooldown;
-		std::cout << "Disparando proyectiles" << std::endl;
-	} else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE){
-		enableShoot = true;
-		DH_trigger = false;
-		DH_time_cooldown = 0.0f;
-		//std::cout << "Deja de disparar" << std::endl;
-	}
-
-	/*
-	// Seleccionar modelo
-	if (enableCountSelected && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS){
-		enableCountSelected = false;
-		modelSelected++;
-		if(modelSelected > 2)
-			modelSelected = 0;
-		if(modelSelected == 1)
-			fileName = "../animaciones/animation_dart_joints.txt";
-		if (modelSelected == 2)
-			fileName = "../animaciones/animation_dart.txt";	
-		std::cout << "modelSelected:" << modelSelected << std::endl;
-	}
-	else if(glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE)
-		enableCountSelected = true;*/
-
 
 	glfwPollEvents();
 	return continueApplication;
@@ -522,7 +476,9 @@ void applicationLoop() {
 	glm::vec3 target;
 	float angleTarget;
 
-	camera->setSensitivity(1.375f);
+	init_routines();
+
+	rt1.setPlay(true);
 
 	/*******************************************
 	* Propiedades Luz direccional
@@ -605,22 +561,7 @@ void applicationLoop() {
 		// Variables donde se guardan las matrices de cada articulacion por 1 frame
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 modelCameraMatrix = glm::translate(modelTankMatrix, glm::vec3(-1.1f, 2.25f, 0.0f));
-		axis = glm::axis(glm::quat_cast(modelCameraMatrix));
-		angleTarget = glm::angle(glm::quat_cast(modelCameraMatrix));
-		target = modelCameraMatrix[3];
-
-		if(std::isnan(angleTarget))
-			angleTarget = 0.0;
-		if(axis.y < 0)
-			angleTarget = -angleTarget;
-
-		camera->setCameraTarget(target);
-		camera->setAngleTarget(angleTarget + 0.85f);
-		camera->setDistanceFromTarget(7.5f);
-		camera->updateCamera();
 		glm::mat4 view = camera->getViewMatrix();
-
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) screenWidth / (float) screenHeight, 0.01f, 100.0f);
 		// Settea la matriz de pruebas
 		shaderTest.setMatrix4("projection", 1, false, glm::value_ptr(projection));
@@ -683,78 +624,54 @@ void applicationLoop() {
 		shaderTerrain.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(0, 0)));
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		/*****************************************
-		 * Objetos Animados en FBX
-		 * **************************************/
-		
+		/*******************************************
+		 * Modelo Principal
+		 *******************************************/
+
 		//Ajuste de personajes al suelo
-		float currHeight = terrain.getHeightTerrain(modelTankMatrix[3][0], modelTankMatrix[3][2]);
-		glm::vec3 ejey = glm::normalize(terrain.getNormalTerrain(modelTankMatrix[3][0], modelTankMatrix[3][2]));
-		glm::vec3 ejex = glm::vec3(modelTankMatrix[0]);
+		float currHeight = terrain.getHeightTerrain(mainCharMatrix[3][0], mainCharMatrix[3][2]);
+		glm::vec3 ejey = glm::normalize(terrain.getNormalTerrain(mainCharMatrix[3][0], mainCharMatrix[3][2]));
+		glm::vec3 ejex = glm::vec3(mainCharMatrix[0]);
 		glm::vec3 ejez = glm::normalize(glm::cross(ejex, ejey));
 		ejex = glm::normalize(glm::cross(ejey, ejez));
-		modelTankMatrix[0] = glm::vec4(ejex, 0.0);
-		modelTankMatrix[1] = glm::vec4(ejey, 0.0);
-		modelTankMatrix[2] = glm::vec4(ejez, 0.0);
+		mainCharMatrix[0] = glm::vec4(ejex, 0.0);
+		mainCharMatrix[1] = glm::vec4(ejey, 0.0);
+		mainCharMatrix[2] = glm::vec4(ejez, 0.0);
 		//Aplicando el desplazamiento por gravedad
-		modelTankMatrix[3][1] = -(GRAVITY * tmv * tmv) + (2.8 * tmv) + currHeight;
+		mainCharMatrix[3][1] = -(GRAVITY * tmv * tmv) + (2.8 * tmv) + currHeight;
 		tmv = currTime - startTimeJump;
 
-		if(modelTankMatrix[3][1] < currHeight){
+		if(mainCharMatrix[3][1] < currHeight){
 			isNotJump = true;
-			modelTankMatrix[3][1] = currHeight; 
+			mainCharMatrix[3][1] = currHeight; 
 		}
-		//Chasis
-		glm::mat4 modelTankMatrix_Chasis = glm::mat4(modelTankMatrix);
-		modelTank_Chasis.render(modelTankMatrix_Chasis);
-		//modelTank_Track.setAnimationIndex(animationTankIndex);
-
-		//Tracks
-		glm::mat4 modelMatrixTank_aux = glm::translate(modelTankMatrix_Chasis, glm::vec3(-1.43085f, 0.64637f, 0.107476f));
-		modelMatrixTank_aux = glm::scale(modelMatrixTank_aux, glm::vec3(0.01f));
-		modelTank_Track.render(modelMatrixTank_aux);
-
-		modelMatrixTank_aux = glm::translate(modelTankMatrix_Chasis, glm::vec3(1.43085f, 0.64637f, 0.107476f));
-		modelMatrixTank_aux = glm::scale(modelMatrixTank_aux, glm::vec3(-0.01f,0.01f,0.01f));
-		modelTank_Track.render(modelMatrixTank_aux);
-
-
-		//Torreta
-		modelMatrixTank_aux = glm::translate(modelTankMatrix_Chasis, glm::vec3(0.0f, 2.09877f, -0.211106f));
-		modelMatrixTank_aux = glm::rotate(modelMatrixTank_aux, camera->getAngleAroundTarget() + 0.75f, glm::vec3(0, 1, 0)); //Movimiento de 360° para el eje Y
-		modelTank_Turret.render(modelMatrixTank_aux);
-
-		//Cañon
-		modelMatrixTank_Canon = glm::translate( modelMatrixTank_aux, glm::vec3(0.0f, -0.08286f, 1.600726f));
-		if(camera->getPitch() >= 0.0f)
-			modelMatrixTank_Canon = glm::rotate(modelMatrixTank_Canon, 0.0f, glm::vec3(1, 0, 0)); //Movimiento limitado en X > 0°
-		else
-			modelMatrixTank_Canon = glm::rotate(modelMatrixTank_Canon, camera->getPitch(), glm::vec3(1, 0, 0)); //Altura aplicada al cañón
-		modelMatrixTank_Canon = glm::scale(modelMatrixTank_Canon, glm::vec3(0.01f));
-		modelTank_Cannon.render(modelMatrixTank_Canon);
-		modelMatrixTank_Canon = glm::translate(modelMatrixTank_Canon, glm::vec3(0.0f,0.0f,4.0f));//Traslacion al final del cañón
-		animationTankIndex = 1;
-
+		//Cuerpo
+		glm::mat4 mainCharMatrix_Body = glm::mat4(mainCharMatrix);
+		mainCharMatrix_Body = glm::rotate(mainCharMatrix_Body,glm::radians(180.0f), glm::vec3(0,1,0));
+		mainCharMatrix_Body = glm::scale(mainCharMatrix_Body, glm::vec3(0.02f));
+		mainCharacter.render(mainCharMatrix_Body);
+		mainCharacter.setAnimationIndex(animationMCIndex);
+		animationMCIndex = 1;
 		/*******************************************
-		 * Generacion de proyectiles
+		 * Modelos Clonados
 		 *******************************************/
-		if(DH_trigger){
-				if(DH_time_cooldown >= DH_cooldown){
-					std::cout << "Cooldown " << DH_time_cooldown << " / " << DH_cooldown << std::endl;
-					DH_time_cooldown -= DH_cooldown;
-					if(vec_proyectile.size() < MAX_PROYECTILES){//Añadir proyectiles
-						float timeNow = currTime;
-						vec_startTime.push_back(timeNow);
-						vec_proy_pos.push_back(glm::mat4(modelMatrixTank_Canon));
-						vec_proyectile.push_back(glm::normalize(modelMatrixTank_Canon[3] - glm::vec4(modelTank_Turret.getSbb().c, 1.0f)));
-						count_proyectiles++;
-						std::cout << "Se ha generado correctamente un proyectil, existen: " << count_proyectiles << std::endl;
-						std::cout << "Generado en (" << vec_proy_pos.at(count_proyectiles - 1)[3].x << " ," << vec_proy_pos.at(count_proyectiles - 1)[3].y << " ," << vec_proy_pos.at(count_proyectiles - 1)[3].z << ")" << std::endl;
-					}
-			}
-			DH_time_cooldown += deltaTime;
+		rt1.animacion();
+		for(size_t i = 0; i < n_Clones; i++){
+			glm::mat4 cloneMatrix = glm::translate(glm::mat4(1.0f), rt1.getVector(0));
+			cloneMatrix = glm::rotate(cloneMatrix, glm::radians(rt1.getScale(0)), glm::vec3(0,1,0));
+			glm::vec3 axisY = glm::normalize(terrain.getNormalTerrain(cloneMatrix[3][0], cloneMatrix[3][2]));
+			glm::vec3 axisX = glm::vec3(cloneMatrix[0]);
+			glm::vec3 axisZ = glm::normalize(glm::cross(axisX, axisY));
+			axisX = glm::normalize(glm::cross(axisY, axisZ));
+			cloneMatrix[0] = glm::vec4(axisX, 0.0);
+			cloneMatrix[1] = glm::vec4(axisY, 0.0);
+			cloneMatrix[2] = glm::vec4(axisZ, 0.0);
+			//Aplicando el desplazamiento por gravedad
+			cloneMatrix[3][1] = terrain.getHeightTerrain(cloneMatrix[3][0], cloneMatrix[3][2]);
+			cloneModel.render(cloneMatrix);
+			cloneModel.setAnimationIndex(vec_animationCLIndex[i]);
+			vec_animationCLIndex[i] = 1;
 		}
-
 		/*******************************************
 		 * Skybox
 		 *******************************************/
@@ -771,220 +688,12 @@ void applicationLoop() {
 		glCullFace(oldCullFaceMode);
 		glDepthFunc(oldDepthFuncMode);
 
-		/*******************************************
-		 * Raycast
-		 *******************************************/
-		glm::mat4 modelMatrixRay = glm::mat4(modelMatrixTank_Canon);//Rayo se sujeta al frente del modelo
-		AbstractModel::RAY ray(10.0f, modelMatrixRay);
-		addOrUpdateColliders(lay_Colition_RAY, "ModelRay", ray, modelMatrixTank_Canon);
-		/*******************************************
-		 * Collider Proyectiles Player
-		 *******************************************/
-		for(size_t i = 0; i < count_proyectiles; i++){
-			AbstractModel::SBB bodyColliderSBB;
-			glm::mat4 modelMatrixCollider = glm::mat4(1.0f);
-			float dTime = currTime - vec_startTime[i];
-			//Velocidad aplicada en XZ, Gravedad colocada a Y
-			modelMatrixCollider[3][0] = vec_proyectile[i][0] * SPEED_PROY * dTime + vec_proy_pos[i][3][0];
-			modelMatrixCollider[3][1] = -(BALISTIC * dTime * dTime) + vec_proy_pos[i][3][1];
-			modelMatrixCollider[3][2] = vec_proyectile[i][2] * SPEED_PROY * dTime + vec_proy_pos[i][3][2];
-			
-			bodyColliderSBB.c = modelMatrixCollider[3];
-			bodyColliderSBB.ratio = modelTank_Proyectile.getSbb().ratio;
-
-			addOrUpdateColliders(lay_SBB_Proyectile_Player, "Proyectile["+ std::to_string(i) + "]", bodyColliderSBB, vec_proy_pos[i]);//Se carga en la capa correspondiente
-			modelTank_Proyectile.render(modelMatrixCollider);
-			std::cout << "Proyectil " << i << " actualizado correctamente" << std::endl;	
-		}
-		
-		/*******************************************
-		 * Collider Boxes
-		 *******************************************/
-		glm::mat4 modelMatrixCollider = glm::mat4(modelTankMatrix_Chasis);
-		AbstractModel::OBB bodyColliderOBB;
-		bodyColliderOBB.u = glm::quat_cast(modelMatrixCollider);//Orientación de la caja antes que la escala
-		modelMatrixCollider = glm::scale(modelMatrixCollider, glm::vec3(1.0f));
-		modelMatrixCollider = glm::translate(modelMatrixCollider,modelTank_Chasis.getObb().c);//Trasladar al centro del modelo
-		bodyColliderOBB.c = modelMatrixCollider[3];
-		bodyColliderOBB.e = modelTank_Chasis.getObb().e * glm::vec3(1.0f) * glm::vec3(1.0f);//Escala del modelo, el segundo vector es un ajuste manual
-		addOrUpdateColliders(lay_Colition_OBB, "ModelBox", bodyColliderOBB, modelTankMatrix_Chasis);//Se carga en la capa correspondiente
-		/*******************************************
-		 * Visualizacion de Collider Boxes
-		 *******************************************/
-		std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator itOBB;
-		for(itOBB = lay_Colition_OBB.begin(); itOBB != lay_Colition_OBB.end(); itOBB++){
-			glm::mat4 matrixCollider = glm::mat4(1.0f);
-			matrixCollider = glm::translate(matrixCollider, std::get<0>(itOBB->second).c);
-			matrixCollider = matrixCollider * glm::mat4(std::get<0>(itOBB->second).u);
-			matrixCollider = glm::scale(matrixCollider, std::get<0>(itOBB->second).e * 2.0f);
-			boxDrawable.enableWireMode();
-			boxDrawable.render(matrixCollider);
-		}
-		/*******************************************
-		* Visualizacion de Jaula de proyectiles
-		*******************************************/
-		glGetIntegerv(GL_CULL_FACE_MODE, &oldCullFaceMode);
-		glGetIntegerv(GL_DEPTH_FUNC, &oldDepthFuncMode);
-		glCullFace(GL_FRONT);
-		glDepthFunc(GL_LEQUAL);
-		glActiveTexture(GL_TEXTURE0);
-		drawableCage.enableWireMode();
-		drawableCage.render();
-		glCullFace(oldCullFaceMode);
-		glDepthFunc(oldDepthFuncMode);
-		/*******************************************
-		* Visualizacion de Proyectiles
-		*******************************************/
-		std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator itSBB;
-		for(itSBB = lay_SBB_Proyectile_Player.begin(); itSBB != lay_SBB_Proyectile_Player.end(); itSBB++){
-			glm::mat4 matrixCollider = glm::mat4(1.0f);
-			matrixCollider = glm::translate(matrixCollider, std::get<0>(itSBB->second).c);
-			matrixCollider = glm::scale(matrixCollider, glm::vec3(std::get<0>(itSBB->second).ratio * 2.0f));
-			proyectileSphere.enableWireMode();
-			proyectileSphere.render(matrixCollider);
-		}
-		/*******************************************
-		* Visualizacion de Collider Ray
-		*******************************************/
-		std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>>::iterator itRAY;
-		for(itRAY = lay_Colition_RAY.begin(); itRAY != lay_Colition_RAY.end(); itRAY++){
-			glm::mat4 matrixCollider = glm::mat4(std::get<0>(itRAY->second).mat);
-			matrixCollider[3] = glm::vec4(std::get<0>(itRAY->second).rmd, 1.0f);
-			matrixCollider = glm::scale(matrixCollider, glm::vec3(0.05f, 0.05f, std::get<0>(itRAY->second).mD));
-			rayDrawable.render(matrixCollider);
-		}
-		
-		/*******************************************
-		* Actualizacion de Colisiones
-		*******************************************/
-		size_t index_proyectile = 0;//Se descartará todo proyectil que salga del terreno
-		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = lay_SBB_Proyectile_Player.begin(); it != lay_SBB_Proyectile_Player.end(); it++){
-			if(!testSBBSBB(proyectile_Cage, std::get<0>(it->second))){//Si el proyectil sale de la jaula
-				std::cout << "Destruido en (" << std::get<0>(it->second).c.x << " ," <<  std::get<0>(it->second).c.y << " ," <<  std::get<0>(it->second).c.z << ")" << std::endl;
-				vec_startTime.erase(vec_startTime.begin() + index_proyectile);
-				vec_proy_pos.erase(vec_proy_pos.begin() + index_proyectile);
-				vec_proyectile.erase(vec_proyectile.begin() + index_proyectile);
-				std::cout << "Proyectil " << index_proyectile << " descartado, salio del alcance" << std::endl;	
-				count_proyectiles--;
-				if(count_proyectiles < 0)
-					count_proyectiles = 0;
-			}else if(std::get<0>(it->second).c.y < terrain.getHeightTerrain(std::get<0>(it->second).c[0], std::get<0>(it->second).c[2])){//Si el proyectil está por debajo de la altura del terreno
-				std::cout << "Destruido en (" << std::get<0>(it->second).c.x << " ," <<  std::get<0>(it->second).c.y << " ," <<  std::get<0>(it->second).c.z << ")" << std::endl;
-				vec_startTime.erase(vec_startTime.begin() + index_proyectile);
-				vec_proy_pos.erase(vec_proy_pos.begin() + index_proyectile);
-				vec_proyectile.erase(vec_proyectile.begin() + index_proyectile);
-				std::cout << "Proyectil " << index_proyectile << " descartado, choco en el suelo a: " << terrain.getHeightTerrain(std::get<0>(it->second).c[0], std::get<0>(it->second).c[2]) << "m de altura"<< std::endl;	
-				count_proyectiles--;
-				if(count_proyectiles < 0)
-					count_proyectiles = 0;
-			}else
-				index_proyectile++;
-		}
-
-		//Rayo con Esfera
-		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = lay_Colition_SBB.begin(); it != lay_Colition_SBB.end(); it++) {
-			if(testRaySBB(ray, std::get<0>(it->second))){
-				//std::cout << "Hay colision entre el rayo y el modelo " << it->first << std::endl;
-			}
-		}
-		//Rayo con Caja
-		for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator it = lay_Colition_OBB.begin(); it != lay_Colition_OBB.end(); it++) {
-			if(testRayOBB(ray, std::get<0>(it->second))){
-				//std::cout << "Hay colision entre el rayo y el modelo " << it->first << std::endl;
-			}
-		}
-		//Esfera con Esfera
-		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = lay_Colition_SBB.begin(); it != lay_Colition_SBB.end(); it++) {
-			bool isCollision = false;
-			for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator jt = lay_Colition_SBB.begin(); jt != lay_Colition_SBB.end(); jt++) {
-				if (it != jt && testSBBSBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					//std::cout << "Hay collision entre " << it->first << " y el modelo " << jt->first << std::endl;
-					isCollision = true;
-				}
-			}
-			addOrUpdateCollisionDetection(collisionDetection, it->first, isCollision);
-		}
-		//Caja con Caja
-		for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator it = lay_Colition_OBB.begin(); it != lay_Colition_OBB.end(); it++) {
-			bool isColision = false;
-			for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt = lay_Colition_OBB.begin(); jt != lay_Colition_OBB.end(); jt++) {
-				if (it != jt && testOBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					//std::cout << "Hay colision entre " << it->first << " y el modelo" << jt->first << std::endl;
-					isColision = true;
-				}
-			}
-			addOrUpdateCollisionDetection(collisionDetection, it->first, isColision);
-		}
-		//Esfera con Caja
-		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = lay_Colition_SBB.begin(); it != lay_Colition_SBB.end(); it++) {
-			bool isCollision = false;
-			for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt = lay_Colition_OBB.begin(); jt != lay_Colition_OBB.end(); jt++) {
-				if (testSBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					//std::cout << "Hay colision del " << it->first << " y el modelo" << jt->first << std::endl;
-					isCollision = true;
-					addOrUpdateCollisionDetection(collisionDetection, jt->first, true);
-				}
-			}
-			addOrUpdateCollisionDetection(collisionDetection, it->first, isCollision);
-		}
-		
-		//Busqueda de Colisiones
-		for (std::map<std::string, bool>::iterator itCollision = collisionDetection.begin(); itCollision != collisionDetection.end(); itCollision++) {
-			std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator sbbBuscado = lay_Colition_SBB.find(itCollision->first);
-			std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator obbBuscado = lay_Colition_OBB.find(itCollision->first);
-			if (sbbBuscado != lay_Colition_SBB.end())
-				if (!itCollision->second) 
-					addOrUpdateColliders(lay_Colition_SBB, itCollision->first);
-			if (obbBuscado != lay_Colition_OBB.end())
-				if (!itCollision->second) 
-					addOrUpdateColliders(lay_Colition_OBB, itCollision->first);
-				else {
-					//Si algo está haciendo colisión, entonces debería regresar a la posicion anterior válida
-					/*if (itCollision->first.compare("mayow") == 0)
-						modelMatrixMayow = std::get<1>(obbBuscado->second);
-					if (itCollision->first.compare("dart") == 0)
-						modelMatrixDart = std::get<1>(obbBuscado->second);*/
-				}
-			
-		}
 		glfwSwapBuffers(window);
-
-		/****************OpenAL Source Data*******************//*
-		source0Pos[0] = modelTankMatrix[3].x;
-		source0Pos[1] = modelTankMatrix[3].y;
-		source0Pos[2] = modelTankMatrix[3].z;
-
-		listenerPos[0] = modelTankMatrix[3].x;
-		listenerPos[1] = modelTankMatrix[3].y;
-		listenerPos[2] = modelTankMatrix[3].z;
-
-		glm::vec3 upModel = glm::normalize(modelTankMatrix[1]);
-		glm::vec3 frontModel = glm::normalize(modelTankMatrix[2]);
-
-		listenerOri[0] = frontModel.x;
-		listenerOri[1] = frontModel.y;
-		listenerOri[2] = frontModel.z;
-		listenerOri[3] = upModel.x;
-		listenerOri[4] = upModel.y;
-		listenerOri[5] = upModel.z;
-
-		alSourcefv(source[0], AL_POSITION, source0Pos);
-		alSourcefv(source[0], AL_VELOCITY, source0Vel);
-		alListenerfv(AL_POSITION, listenerPos);
-		alListenerfv(AL_ORIENTATION, listenerOri);
-
-		for(size_t i = 0; i < sourcesPlay.size(); i++)
-			if(sourcesPlay[i]){
-				sourcesPlay[i] = false;
-				alSourcePlay(source[i]);
-				alSourceStop(source[i]);
-			}
-		*/
 	}
 }
 
 int main(int argc, char **argv) {
-	init(1920, 980, "Guild of Engines V1.0.1", false);
+	init(1920, 1020, "Pruebas de animacion", false);
 	applicationLoop();
 	destroy();
 	return 1;

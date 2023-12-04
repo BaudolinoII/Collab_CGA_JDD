@@ -280,8 +280,6 @@ void applicationLoop() {
 	glm::vec3 target;
 	float angleTarget;
 
-	camera->setSensitivity(1.375f);
-
 	/*******************************************
 	* Propiedades Luz direccional
 	*******************************************/
@@ -425,6 +423,22 @@ void applicationLoop() {
 		terrain.render();
 		shaderTerrain.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(0, 0)));
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		/*******************************************
+		 * Skybox
+		 *******************************************/
+		GLint oldCullFaceMode;
+		GLint oldDepthFuncMode;
+		// deshabilita el modo del recorte de caras ocultas para ver las esfera desde adentro
+		glGetIntegerv(GL_CULL_FACE_MODE, &oldCullFaceMode);
+		glGetIntegerv(GL_DEPTH_FUNC, &oldDepthFuncMode);
+		shaderSkybox.setFloat("skybox", 0);
+		glCullFace(GL_FRONT);
+		glDepthFunc(GL_LEQUAL);
+		glActiveTexture(GL_TEXTURE0);
+		skyboxSphere.render();
+		glCullFace(oldCullFaceMode);
+		glDepthFunc(oldDepthFuncMode);
 
 		glfwSwapBuffers(window);
 	}
