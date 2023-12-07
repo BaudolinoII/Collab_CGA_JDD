@@ -37,7 +37,7 @@ struct  SpotLight{
 };
 
 const int MAX_POINT_LIGHTS = 20;
-const int MAX_SPOT_LIGHTS = 3;
+const int MAX_SPOT_LIGHTS = 1;
 
 out vec4 color;
 
@@ -53,14 +53,15 @@ uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 uniform vec3 viewPos;
-  
 uniform vec2 scaleUV;  
-  
+
 uniform sampler2D backgroundTexture;
 uniform sampler2D textureR;
 uniform sampler2D textureG;
 uniform sampler2D textureB;
 uniform sampler2D textureBlendMap;
+  
+uniform sampler2D backgroundTexture;
 
 vec3 calculateDirectionalLight(Light light, vec3 direction){
 	vec2 tiledCoords = our_uv;
@@ -68,16 +69,12 @@ vec3 calculateDirectionalLight(Light light, vec3 direction){
 		tiledCoords = scaleUV * tiledCoords;
 	
 	vec4 blendMapColor = texture(textureBlendMap, our_uv);
-	float countColorBlendMap = 1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b);
-	
-	vec4 colorTextureBackground = texture(backgroundTexture, tiledCoords) * countColorBlendMap;
-	vec4 colorTextureR = texture(textureR, tiledCoords) * blendMapColor.r;
-	vec4 colorTextureG = texture(textureG, tiledCoords) * blendMapColor.g;
-	vec4 colorTextureB = texture(textureB, tiledCoords) * blendMapColor.b;
-	vec4 totalColor = colorTextureBackground + colorTextureR + colorTextureG + colorTextureB;
-	
-	//vec4 backgroundTextureColor = texture(backgroundTexture, tiledCoords);
-	//vec4 totalColor = backgroundTextureColor;
+	float backTextureAmount = 1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b);
+	vec4 backgroundTextureColor = texture(backgroundTexture, tiledCoords) * backTextureAmount;
+	vec4 textureRColor = texture(textureR, tiledCoords) * blendMapColor.r;
+	vec4 textureGColor = texture(textureG, tiledCoords) * blendMapColor.g;
+	vec4 textureBColor = texture(textureB, tiledCoords) * blendMapColor.b;
+	vec4 totalColor = backgroundTextureColor + textureRColor + textureGColor + textureBColor;
 
 	// Ambient
     vec3 ambient  = light.ambient * vec3(totalColor);
@@ -123,7 +120,6 @@ vec3 calculateSpotLights(){
 	return result;
 }
 
-void main()
-{
+void main(){
     color = vec4(calculateDirectionalLight(directionalLight.light, directionalLight.direction) + calculatePointLights() + calculateSpotLights(), 1.0);
 }

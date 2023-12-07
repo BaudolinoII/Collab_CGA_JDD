@@ -59,10 +59,10 @@ uniform vec3 viewPos;
 uniform vec2 scaleUV;  
   
 uniform sampler2D backgroundTexture;
-uniform sampler2D rTexture;
-uniform sampler2D gTexture;
-uniform sampler2D bTexture;
-uniform sampler2D blendMapTexture;
+uniform sampler2D textureR;
+uniform sampler2D textureG;
+uniform sampler2D textureB;
+uniform sampler2D textureBlendMap;
 
 uniform sampler2D shadowMap;
 
@@ -79,7 +79,7 @@ float calculateShadow(vec3 lightDir){
     float currentDepth = projCoords.z;
 
     // This is the first version of the shadow mapping with shadow acne
-    // float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
 
     // This is the second version of the shadow mapping with shadow bias to correct the shadow acne
     // float bias = 0.005;
@@ -99,7 +99,7 @@ float calculateShadow(vec3 lightDir){
 
 
     // This is the final version of the shadow mapping with shadow bias to correct the shadow acne
-    vec3 normal = normalize(our_normal);
+    /*vec3 normal = normalize(our_normal);
 	float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.001);  
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
@@ -113,7 +113,7 @@ float calculateShadow(vec3 lightDir){
 	}
 	shadow /= 9.0;
 	if(projCoords.z > 1.0)
-        shadow = 0.0;
+        shadow = 0.0;*/
 
     return shadow;
 }
@@ -123,13 +123,13 @@ vec3 calculateDirectionalLight(Light light, vec3 direction){
 	if(tiledCoords.x != 0 && tiledCoords.y != 0)
 		tiledCoords = scaleUV * tiledCoords;
 
-	vec4 blendMapColor = texture(blendMapTexture, our_uv);
+	vec4 blendMapColor = texture(textureBlendMap, our_uv);
 	float backTextureAmount = 1 - (blendMapColor.r + blendMapColor.g + blendMapColor.b);
 	vec4 backgroundTextureColor = texture(backgroundTexture, tiledCoords) * backTextureAmount;
-	vec4 rTextureColor = texture(rTexture, tiledCoords) * blendMapColor.r;
-	vec4 gTextureColor = texture(gTexture, tiledCoords) * blendMapColor.g;
-	vec4 bTextureColor = texture(bTexture, tiledCoords) * blendMapColor.b;
-	vec4 totalColor = backgroundTextureColor + rTextureColor + gTextureColor + bTextureColor;
+	vec4 textureRColor = texture(textureR, tiledCoords) * blendMapColor.r;
+	vec4 textureGColor = texture(textureG, tiledCoords) * blendMapColor.g;
+	vec4 textureBColor = texture(textureB, tiledCoords) * blendMapColor.b;
+	vec4 totalColor = backgroundTextureColor + textureRColor + textureGColor + textureBColor;
 
 	// Ambient
     vec3 ambient  = light.ambient * vec3(totalColor);
@@ -177,8 +177,7 @@ vec3 calculateSpotLights(){
 	return result;
 }
 
-void main()
-{
+void main(){
     color = vec4(calculateDirectionalLight(directionalLight.light, directionalLight.direction) + calculatePointLights() + calculateSpotLights(), 1.0);
 	color = mix(vec4(fogColor, 1.0), color, visibility);
 }
