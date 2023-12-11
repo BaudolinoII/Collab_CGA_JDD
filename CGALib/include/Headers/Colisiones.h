@@ -3,6 +3,9 @@
 
 #include <map>
 #include "AbstractModel.h"
+#include "Box.h"
+#include "Sphere.h"
+#include "Cylinder.h"
 
 void addOrUpdateColliders(std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4> > &colliders, std::string name, AbstractModel::OBB collider, glm::mat4 transform) {
 	std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4> >::iterator it = colliders.find(name);
@@ -77,6 +80,38 @@ void setColliderRAY(std::map<std::string, std::tuple<AbstractModel::RAY, glm::ma
 	glm::mat4 modelMatrixRay = glm::mat4(modelMatrix);
 	AbstractModel::RAY ray(range, modelMatrixRay);
 	addOrUpdateColliders(collider_lay, "RayMainCharacter", ray, modelMatrix);
+}
+
+void renderLayerOBB(std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> &collider_lay, Box &boxCollider, glm::vec4 color){
+	std::map<std::string, std::tuple<AbstractModel::OBB,glm::mat4,glm::mat4>>::iterator it;
+	for (it = collider_lay.begin(); it != collider_lay.end(); it++) {
+		glm::mat4 matrixCollider = glm::translate(glm::mat4(1.0), std::get<0>(it->second).c);
+		matrixCollider = matrixCollider * glm::mat4(std::get<0>(it->second).u);
+		matrixCollider = glm::scale(matrixCollider, std::get<0>(it->second).e * 2.0f);
+		boxCollider.setColor(color);
+		boxCollider.enableWireMode();
+		boxCollider.render(matrixCollider);
+	}
+}
+void renderLayerSBB(std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> &collider_lay, Sphere &sphereCollider, glm::vec4 color){
+	std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4> >::iterator it;
+	for (it = collider_lay.begin(); it != collider_lay.end(); it++) {
+		glm::mat4 matrixCollider =  glm::translate(glm::mat4(1.0), std::get<0>(it->second).c);
+		matrixCollider = glm::scale(matrixCollider, glm::vec3(std::get<0>(it->second).ratio * 2.0f));
+		sphereCollider.setColor(color);
+		sphereCollider.enableWireMode();
+		sphereCollider.render(matrixCollider);
+	}
+}
+void renderLayerRAY(std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>> &collider_lay, Cylinder &rayCollider, glm::vec4 color){
+	std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>>::iterator it;
+	for(it = collider_lay.begin(); it != collider_lay.end(); it++){
+		glm::mat4 matrixCollider = glm::mat4(std::get<0>(it->second).mat);
+		matrixCollider[3] = glm::vec4(std::get<0>(it->second).rmd, 1.0f);
+		//matrixCollider = glm::scale(matrixCollider, glm::vec3(0.05f, 0.05f, std::get<0>(it->second).mD));
+		rayCollider.setColor(color);
+		rayCollider.render(matrixCollider);
+	}
 }
 
 bool testSLABPLane(float p, float v, float min, float max, float &tmin, float &tmax) {

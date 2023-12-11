@@ -74,7 +74,7 @@ Box boxTerrain;
 
 Box boxCollider;
 Sphere sphereCollider(10, 10);
-Cylinder rayModel(10, 10, 1.0, 1.0, 1.0);
+Cylinder rayCollider(10, 10, 1.0, 1.0, 1.0);
 
 
 FontTypeRendering::FontTypeRendering *modelText;
@@ -103,7 +103,7 @@ double tmv = 0;
 double startTimeJump = 0;
 
 // Modelos de Edificios
-Model modelBuilding;
+Model modelBuildingA;
 std::map<std::string, std::vector<std::pair<glm::vec3, float>>> dataBuilds = {
 	{"EdificioA", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
 	{"EdificioB", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
@@ -156,10 +156,10 @@ std::string fileNames[6] = {
 /************************************Capa de Colision****************************************/
 /********************************************************************************************/
 
-std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4> > colliderBuildings;
-std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4> > collidersOBB;
-std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4> > collidersSBB;
-std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>> colitionLayRay;
+std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> colliderBuildings;
+std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> collidersOBB;
+std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> collidersSBB;
+std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>> collidersRAY;
 
 /********************************************************************************************/
 /************************************Opciones de Al*****************************************/
@@ -286,9 +286,13 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	sphereCollider.setShader(&shader);
 	sphereCollider.setColor(glm::vec4(1.0));
 
-	rayModel.init();
-	rayModel.setShader(&shader);
-	rayModel.setColor(glm::vec4(1.0));
+	rayCollider.init();
+	rayCollider.setShader(&shader);
+	rayCollider.setColor(glm::vec4(1.0));
+
+	modelProyectile.init();
+	modelProyectile.setShader(&shader);
+	modelProyectile.setColor(glm::vec4(0.0f, 0.5f, 0.5f, 0.8f));
 
 	boxTerrain.init();
 	boxTerrain.setShader(&shaderMulLighting);
@@ -300,17 +304,13 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	boxViewDepth.init();
 	boxViewDepth.setShader(&shaderViewDepth);
 
-	modelBuilding.loadModel("../models/rock/rock.obj");
+	modelBuildingA.loadModel("../models/rock/rock.obj");
 
 	// MainCharacter Tanque Duck-Hunter
 	modelTankChasis.loadModel("../models/DuckHunter/chasis.obj");
 	modelTankTurret.loadModel("../models/DuckHunter/turret.obj");
 	modelTankCannon.loadModel("../models/DuckHunter/cannon.fbx");
 	modelTankTracks.loadModel("../models/DuckHunter/track.fbx");
-
-	modelProyectile.init();
-	modelProyectile.setShader(&shader);
-	modelProyectile.setColor(glm::vec4(0.0f, 0.5f, 0.5f, 0.8f));
 	
 	// Guardian
 	modelSoldierEnemy.loadModel("../models/Soldier/Soldier.fbx");
@@ -528,13 +528,13 @@ void destroy() {
 
 	boxCollider.destroy();
 	sphereCollider.destroy();
-	rayModel.destroy();
+	rayCollider.destroy();
 
 	boxIntro.destroy();
 	boxViewDepth.destroy();
 
 	// Custom objects Delete
-	modelBuilding.destroy();
+	modelBuildingA.destroy();
 
 	modelTankChasis.destroy();
 	modelTankTurret.destroy();
@@ -765,7 +765,7 @@ void initParticleBuffers() {
 void prepareLightScene(){
 	terrain.setShader(&shaderTerrain);
 	
-	modelBuilding.setShader(&shaderMulLighting);
+	modelBuildingA.setShader(&shaderMulLighting);
 
 	modelTankChasis.setShader(&shaderMulLighting);
 	modelTankTurret.setShader(&shaderMulLighting);
@@ -777,7 +777,7 @@ void prepareLightScene(){
 void prepareDepthScene(){
 	terrain.setShader(&shaderDepth);
 
-	modelBuilding.setShader(&shaderDepth);
+	modelBuildingA.setShader(&shaderDepth);
 
 	modelTankChasis.setShader(&shaderDepth);
 	modelTankTurret.setShader(&shaderDepth);
@@ -822,23 +822,23 @@ void renderSolidScene(){
 		if(!itBuild->first.compare("EdificioA"))
 			for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 				jtBuild->first.y = terrain.getHeightTerrain(jtBuild->first.x, jtBuild->first.z);
-				modelBuilding.setPosition(jtBuild->first);
-				modelBuilding.setOrientation(glm::vec3(0, jtBuild->second, 0));
-				modelBuilding.render();
+				modelBuildingA.setPosition(jtBuild->first);
+				modelBuildingA.setOrientation(glm::vec3(0, jtBuild->second, 0));
+				modelBuildingA.render();
 			}
 		if(!itBuild->first.compare("EdificioB"))
 			for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 				jtBuild->first.y = terrain.getHeightTerrain(jtBuild->first.x, jtBuild->first.z);
-				modelBuilding.setPosition(jtBuild->first);
-				modelBuilding.setOrientation(glm::vec3(0, jtBuild->second, 0));
-				modelBuilding.render();
+				modelBuildingA.setPosition(jtBuild->first);
+				modelBuildingA.setOrientation(glm::vec3(0, jtBuild->second, 0));
+				modelBuildingA.render();
 			}
 		if(!itBuild->first.compare("EdificioC"))
 			for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 				jtBuild->first.y = terrain.getHeightTerrain(jtBuild->first.x, jtBuild->first.z);
-				modelBuilding.setPosition(jtBuild->first);
-				modelBuilding.setOrientation(glm::vec3(0, jtBuild->second, 0));
-				modelBuilding.render();
+				modelBuildingA.setPosition(jtBuild->first);
+				modelBuildingA.setOrientation(glm::vec3(0, jtBuild->second, 0));
+				modelBuildingA.render();
 			}
 	}
 	
@@ -1186,115 +1186,41 @@ void applicationLoop() {
 		for(itBuild = dataBuilds.begin(); itBuild != dataBuilds.end(); itBuild++){
 			if(!itBuild->first.compare("EdificioA"))
 				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
-					AbstractModel::OBB buildCollider;
 					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
-					modelMatrixBuilding = glm::rotate(modelMatrixBuilding, glm::radians(jtBuild->second), glm::vec3(0, 1, 0));
-					modelMatrixBuilding = glm::scale(modelMatrixBuilding, glm::vec3(1.0));
-					modelMatrixBuilding = glm::translate(modelMatrixBuilding, modelBuilding.getSbb().c);
-					buildCollider.e = modelBuilding.getObb().e * glm::vec3(0.021) * glm::vec3(0.787401574);
-					buildCollider.c = glm::vec3(modelMatrixBuilding[3]);
-					addOrUpdateColliders(colliderBuildings, "EdificioA" + std::to_string(counterBuildCollider[0]), buildCollider, modelMatrixBuilding);
+					setColliderOBB(colliderBuildings, "EdificioA " + std::to_string(counterBuildCollider[0]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
 					counterBuildCollider[0]++;
 				}
 			if(!itBuild->first.compare("EdificioB"))
 				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
-					AbstractModel::OBB buildCollider;
 					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
-					modelMatrixBuilding = glm::rotate(modelMatrixBuilding, glm::radians(jtBuild->second), glm::vec3(0, 1, 0));
-					modelMatrixBuilding = glm::scale(modelMatrixBuilding, glm::vec3(1.0));
-					modelMatrixBuilding = glm::translate(modelMatrixBuilding, modelBuilding.getSbb().c);
-					buildCollider.e = modelBuilding.getObb().e * glm::vec3(0.021) * glm::vec3(0.787401574);
-					buildCollider.c = glm::vec3(modelMatrixBuilding[3]);
-					addOrUpdateColliders(colliderBuildings, "EdificioB" + std::to_string(counterBuildCollider[0]), buildCollider, modelMatrixBuilding);
+					setColliderOBB(colliderBuildings, "EdificioB " + std::to_string(counterBuildCollider[1]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
 					counterBuildCollider[1]++;
 				}
 			if(!itBuild->first.compare("EdificioC"))
 				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
-					AbstractModel::OBB buildCollider;
 					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
-					modelMatrixBuilding = glm::rotate(modelMatrixBuilding, glm::radians(jtBuild->second), glm::vec3(0, 1, 0));
-					modelMatrixBuilding = glm::scale(modelMatrixBuilding, glm::vec3(1.0));
-					modelMatrixBuilding = glm::translate(modelMatrixBuilding, modelBuilding.getSbb().c);
-					buildCollider.e = modelBuilding.getObb().e * glm::vec3(0.021) * glm::vec3(0.787401574);
-					buildCollider.c = glm::vec3(modelMatrixBuilding[3]);
-					addOrUpdateColliders(colliderBuildings, "EdificioC" + std::to_string(counterBuildCollider[0]), buildCollider, modelMatrixBuilding);
+					setColliderOBB(colliderBuildings, "EdificioC " + std::to_string(counterBuildCollider[2]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
 					counterBuildCollider[2]++;
 				}
 		}
-		/*
-		// Collider del Main Character
-		AbstractModel::OBB mainCharCollider;
-		glm::mat4 modelMatrixColliderMC = glm::mat4(modelMatrixTankChasis);
-		modelMatrixColliderMC = glm::rotate(modelMatrixColliderMC, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-		// Set the orientation of collider before doing the scale
-		mainCharCollider.u = glm::quat_cast(modelMatrixColliderMC);
-		modelMatrixColliderMC = glm::scale(modelMatrixColliderMC, glm::vec3(0.08));
-		modelMatrixColliderMC = glm::translate(modelMatrixColliderMC, glm::vec3(modelTankChasis.getObb().c));
-		mainCharCollider.e = modelTankChasis.getObb().e * glm::vec3(0.08) * glm::vec3(0.9);
-		mainCharCollider.c = glm::vec3(modelMatrixColliderMC[3]);
-		addOrUpdateColliders(collidersOBB, "MainCharacter", mainCharCollider, modelMatrixTankChasis);
-		*/
+
 		setColliderOBB(collidersOBB, "MainCharacterChasis", modelMatrixTankChasis, modelTankChasis.getObb(), glm::vec3(1.0f));
 		setColliderOBB(collidersOBB, "MainCharacterTurret", modelMatrixTankTurret, modelTankTurret.getObb(), glm::vec3(1.0f));
-		setColliderRAY(colitionLayRay, "RayMainCharacter", modelMatrixTankCannon, 10.0f);
-		// Rayo desde el MainCharacter
-		/*glm::mat4 modelMatrixRay = glm::mat4(modelMatrixTankCannon);
-		AbstractModel::RAY ray(10.0f, modelMatrixRay);
-		addOrUpdateColliders(colitionLayRay, "RayMainCharacter", ray, modelMatrixTankCannon);*/
-
-		//AbstractModel::OBB soldierCollider;
-		glm::mat4 modelMatrixColliderSE = glm::translate(glm::mat4(1.0f), rSE1.getVector(0));
-		modelMatrixColliderSE = glm::rotate(modelMatrixColliderSE, glm::radians(rSE1.getScale(0)), glm::vec3(0, 1, 0));
-		//modelMatrixColliderSE = glm::rotate(modelMatrixColliderSE, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-		// Set the orientation of collider before doing the scale
-		setColliderOBB(collidersOBB, "SoldadoEnemigoL1_" + std::to_string(0), modelMatrixColliderSE, modelSoldierEnemy.getObb(), glm::vec3(0.5));
-		/*soldierCollider.u = glm::quat_cast(modelMatrixColliderSE);
-		modelMatrixColliderSE = glm::scale(modelMatrixColliderSE, glm::vec3(0.021));
-		modelMatrixColliderSE = glm::translate(modelMatrixColliderSE, glm::vec3(modelSoldierEnemy.getObb().c));
-		soldierCollider.e = modelSoldierEnemy.getObb().e * glm::vec3(0.021) * glm::vec3(0.787401574);
-		soldierCollider.c = glm::vec3(modelMatrixColliderSE[3]);
-		addOrUpdateColliders(collidersOBB, "SoldadoEnemigoL1" + std::to_string(0), soldierCollider, modelMatrixColliderSE);*/
-
+		setColliderRAY(collidersRAY, "RayMainCharacter", modelMatrixTankCannon, 10.0f);
+		
+		for(size_t i = 0; i < vecAnimationSEIndex.size(); i++){
+			glm::mat4 modelMatrixColliderSE = glm::translate(glm::mat4(1.0f), rSE1.getVector(i));
+			modelMatrixColliderSE = glm::rotate(modelMatrixColliderSE, glm::radians(rSE1.getScale(i)), glm::vec3(0, 1, 0));
+			setColliderOBB(collidersOBB, "SoldadoEnemigoL1_" + std::to_string(i), modelMatrixColliderSE, modelSoldierEnemy.getObb(), glm::vec3(0.1));
+		}
 
 		/*******************************************
 		 * Render de colliders
 		 *******************************************/
-
-		std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>>::iterator itRAY;
-		for(itRAY = colitionLayRay.begin(); itRAY != colitionLayRay.end(); itRAY++){
-			glm::mat4 matrixCollider = glm::mat4(std::get<0>(itRAY->second).mat);
-			matrixCollider[3] = glm::vec4(std::get<0>(itRAY->second).rmd, 1.0f);
-			matrixCollider = glm::scale(matrixCollider, glm::vec3(0.05f, 0.05f, std::get<0>(itRAY->second).mD));
-			rayModel.render(matrixCollider);
-		}
-
-		for (std::map<std::string, std::tuple<AbstractModel::OBB,glm::mat4,glm::mat4>>::iterator it = collidersOBB.begin(); it != collidersOBB.end(); it++) {
-			glm::mat4 matrixCollider = glm::mat4(1.0);
-			matrixCollider = glm::translate(matrixCollider, std::get<0>(it->second).c);
-			matrixCollider = matrixCollider * glm::mat4(std::get<0>(it->second).u);
-			matrixCollider = glm::scale(matrixCollider, std::get<0>(it->second).e * 2.0f);
-			boxCollider.setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
-			boxCollider.enableWireMode();
-			boxCollider.render(matrixCollider);
-		}
-		for (std::map<std::string, std::tuple<AbstractModel::OBB,glm::mat4,glm::mat4>>::iterator it = colliderBuildings.begin(); it != colliderBuildings.end(); it++) {
-			glm::mat4 matrixCollider = glm::mat4(1.0);
-			matrixCollider = glm::translate(matrixCollider, std::get<0>(it->second).c);
-			matrixCollider = matrixCollider * glm::mat4(std::get<0>(it->second).u);
-			matrixCollider = glm::scale(matrixCollider, std::get<0>(it->second).e * 2.0f);
-			boxCollider.setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
-			boxCollider.enableWireMode();
-			boxCollider.render(matrixCollider);
-		}
-
-		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4> >::iterator it = collidersSBB.begin(); it != collidersSBB.end(); it++) {
-			glm::mat4 matrixCollider = glm::mat4(1.0);
-			matrixCollider = glm::translate(matrixCollider, std::get<0>(it->second).c);
-			matrixCollider = glm::scale(matrixCollider, glm::vec3(std::get<0>(it->second).ratio * 2.0f));
-			sphereCollider.setColor(glm::vec4(1.0, 1.0, 1.0, 1.0));
-			sphereCollider.enableWireMode();
-			sphereCollider.render(matrixCollider);
-		}
+		renderLayerRAY(collidersRAY, rayCollider, glm::vec4(1.0f));
+		renderLayerOBB(collidersOBB, boxCollider, glm::vec4(1.0f));
+		renderLayerOBB(colliderBuildings, boxCollider, glm::vec4(1.0f));
+		renderLayerSBB(collidersSBB, sphereCollider, glm::vec4(1.0f));
 
 		/**********Render de transparencias***************/
 		renderAlphaScene();
@@ -1354,7 +1280,7 @@ void applicationLoop() {
 
 		//Rayo con Esfera
 		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = collidersSBB.begin(); it != collidersSBB.end(); it++) 
-			for (std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>>::iterator jt = colitionLayRay.begin(); jt != colitionLayRay.end(); jt++)
+			for (std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>>::iterator jt = collidersRAY.begin(); jt != collidersRAY.end(); jt++)
 				if(testRaySBB(std::get<0>(jt->second), std::get<0>(it->second))){
 					std::cout << "Hay colision entre el rayo "<< jt->first <<" y el modelo " << it->first << std::endl;
 				}
