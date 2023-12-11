@@ -92,10 +92,11 @@ Model modelTankCannon;
 glm::mat4 modelMatrixTankChasis = glm::mat4(1.0f);
 glm::mat4 modelMatrixTankTurret = glm::mat4(1.0f);
 glm::mat4 modelMatrixTankCannon = glm::mat4(1.0f);
-size_t animDHTankTracksIndex = 1;
+size_t animDHTankTracksIndex = 1, animDHTankCannonIndex = 1;
 
 //Proyectiles del jugador
-Sphere proyectileSphere(10, 10);
+Sphere modelProyectile(5, 5);
+glm::mat4 modelProyectileMatrix = glm::mat4(1.0f);
 
 bool isJump = false;
 double tmv = 0;
@@ -207,6 +208,7 @@ bool processInput(bool continueApplication = true);
 
 // Implementacion de todas las funciones.
 void init(int width, int height, std::string strTitle, bool bFullScreen) {
+
 	/*******************************************
 	 * Inicio de fundamentales (No modificar)
 	 *******************************************/
@@ -305,6 +307,10 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelTankTurret.loadModel("../models/DuckHunter/turret.obj");
 	modelTankCannon.loadModel("../models/DuckHunter/cannon.fbx");
 	modelTankTracks.loadModel("../models/DuckHunter/track.fbx");
+
+	modelProyectile.init();
+	modelProyectile.setShader(&shader);
+	modelProyectile.setColor(glm::vec4(0.0f, 0.5f, 0.5f, 0.8f));
 	
 	// Guardian
 	modelSoldierEnemy.loadModel("../models/Soldier/Soldier.fbx");
@@ -504,6 +510,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
 void destroy() {
 	glfwDestroyWindow(window);
 	glfwTerminate();
@@ -533,6 +540,7 @@ void destroy() {
 	modelTankTurret.destroy();
 	modelTankCannon.destroy();
 	modelTankTracks.destroy();
+	modelProyectile.destroy();
 
 	modelSoldierEnemy.destroy();
 
@@ -863,11 +871,11 @@ void renderSolidScene(){
 	modelMatrixTankAux = glm::scale(modelMatrixTankAux, glm::vec3(-0.01f));
 	modelTankTracks.render(modelMatrixTankAux);
 
-	modelMatrixTankAux = glm::translate(modelMatrixTankChasis, glm::vec3(0.0f, 2.09877f, -0.211106f));
-	modelMatrixTankAux = glm::rotate(modelMatrixTankAux, camera->getAngleAroundTarget() + 0.75f, glm::vec3(0, 1, 0)); //Movimiento de 360° para el eje Y
-	modelTankTurret.render(modelMatrixTankAux);
+	modelMatrixTankTurret = glm::translate(modelMatrixTankChasis, glm::vec3(0.0f, 2.09877f, -0.211106f));
+	modelMatrixTankTurret = glm::rotate(modelMatrixTankTurret, camera->getAngleAroundTarget() + 0.75f, glm::vec3(0, 1, 0)); //Movimiento de 360° para el eje Y
+	modelTankTurret.render(modelMatrixTankTurret);
 
-	modelMatrixTankCannon = glm::translate( modelMatrixTankAux, glm::vec3(0.0f, -0.08286f, 1.600726f)); 
+	modelMatrixTankCannon = glm::translate( modelMatrixTankTurret, glm::vec3(0.0f, -0.08286f, 1.600726f)); 
 	if(camera->getPitch() >= 0.0f)
 		modelMatrixTankCannon = glm::rotate(modelMatrixTankCannon, 0.0f, glm::vec3(1, 0, 0)); //Movimiento limitado en X > 0°
 	else
@@ -894,7 +902,7 @@ void renderSolidScene(){
 		modelMatrixSoldierEnemy[2] = glm::vec4(axisZ, 0.0);
 		//Aplicando el desplazamiento por gravedad
 		modelMatrixSoldierEnemy[3][1] = terrain.getHeightTerrain(modelMatrixSoldierEnemy[3][0], modelMatrixSoldierEnemy[3][2]);
-		modelMatrixSoldierEnemy = glm::scale(modelMatrixSoldierEnemy, glm::vec3(0.0005f));
+		modelMatrixSoldierEnemy = glm::scale(modelMatrixSoldierEnemy, glm::vec3(0.0008f));
 		modelSoldierEnemy.render(modelMatrixSoldierEnemy);
 		modelSoldierEnemy.setAnimationIndex(vecAnimationSEIndex[i]);
 	}
@@ -929,6 +937,7 @@ void renderAlphaScene(bool render = true){
 	/**********
 	 * Render de las transparencias
 	 */
+	modelProyectile.render(modelProyectileMatrix);
 	glEnable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
 
@@ -1212,34 +1221,40 @@ void applicationLoop() {
 					counterBuildCollider[2]++;
 				}
 		}
-
+		/*
 		// Collider del Main Character
 		AbstractModel::OBB mainCharCollider;
 		glm::mat4 modelMatrixColliderMC = glm::mat4(modelMatrixTankChasis);
 		modelMatrixColliderMC = glm::rotate(modelMatrixColliderMC, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 		// Set the orientation of collider before doing the scale
 		mainCharCollider.u = glm::quat_cast(modelMatrixColliderMC);
-		modelMatrixColliderMC = glm::scale(modelMatrixColliderMC, glm::vec3(0.021));
+		modelMatrixColliderMC = glm::scale(modelMatrixColliderMC, glm::vec3(0.08));
 		modelMatrixColliderMC = glm::translate(modelMatrixColliderMC, glm::vec3(modelTankChasis.getObb().c));
-		mainCharCollider.e = modelTankChasis.getObb().e * glm::vec3(0.021) * glm::vec3(0.787401574);
+		mainCharCollider.e = modelTankChasis.getObb().e * glm::vec3(0.08) * glm::vec3(0.9);
 		mainCharCollider.c = glm::vec3(modelMatrixColliderMC[3]);
 		addOrUpdateColliders(collidersOBB, "MainCharacter", mainCharCollider, modelMatrixTankChasis);
+		*/
+		setColliderOBB(collidersOBB, "MainCharacterChasis", modelMatrixTankChasis, modelTankChasis.getObb(), glm::vec3(1.0f));
+		setColliderOBB(collidersOBB, "MainCharacterTurret", modelMatrixTankTurret, modelTankTurret.getObb(), glm::vec3(1.0f));
+		setColliderRAY(colitionLayRay, "RayMainCharacter", modelMatrixTankCannon, 10.0f);
 		// Rayo desde el MainCharacter
-		glm::mat4 modelMatrixRay = glm::mat4(modelMatrixTankChasis);
+		/*glm::mat4 modelMatrixRay = glm::mat4(modelMatrixTankCannon);
 		AbstractModel::RAY ray(10.0f, modelMatrixRay);
-		addOrUpdateColliders(colitionLayRay, "RayMainCharacter", ray, modelMatrixTankChasis);
+		addOrUpdateColliders(colitionLayRay, "RayMainCharacter", ray, modelMatrixTankCannon);*/
 
-		AbstractModel::OBB soldierCollider;
+		//AbstractModel::OBB soldierCollider;
 		glm::mat4 modelMatrixColliderSE = glm::translate(glm::mat4(1.0f), rSE1.getVector(0));
 		modelMatrixColliderSE = glm::rotate(modelMatrixColliderSE, glm::radians(rSE1.getScale(0)), glm::vec3(0, 1, 0));
-		modelMatrixColliderSE = glm::rotate(modelMatrixColliderSE, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+		//modelMatrixColliderSE = glm::rotate(modelMatrixColliderSE, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 		// Set the orientation of collider before doing the scale
-		soldierCollider.u = glm::quat_cast(modelMatrixColliderSE);
+		setColliderOBB(collidersOBB, "SoldadoEnemigoL1_" + std::to_string(0), modelMatrixColliderSE, modelSoldierEnemy.getObb(), glm::vec3(0.5));
+		/*soldierCollider.u = glm::quat_cast(modelMatrixColliderSE);
 		modelMatrixColliderSE = glm::scale(modelMatrixColliderSE, glm::vec3(0.021));
 		modelMatrixColliderSE = glm::translate(modelMatrixColliderSE, glm::vec3(modelSoldierEnemy.getObb().c));
 		soldierCollider.e = modelSoldierEnemy.getObb().e * glm::vec3(0.021) * glm::vec3(0.787401574);
 		soldierCollider.c = glm::vec3(modelMatrixColliderSE[3]);
-		addOrUpdateColliders(collidersOBB, "SoldadoEnemigoL1" + std::to_string(0), soldierCollider, modelMatrixColliderSE);
+		addOrUpdateColliders(collidersOBB, "SoldadoEnemigoL1" + std::to_string(0), soldierCollider, modelMatrixColliderSE);*/
+
 
 		/*******************************************
 		 * Render de colliders

@@ -53,6 +53,32 @@ void addOrUpdateCollisionDetection(std::map<std::string, bool> &collisionDetecto
 		collisionDetector[name] = isCollision;
 }
 
+void setColliderOBB(std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> &collider_lay, std::string tag, glm::mat4 modelMatrix, AbstractModel::OBB obb, glm::vec3 scale){
+	AbstractModel::OBB colliderOBB;
+	glm::mat4 matrixCollider = glm::mat4(modelMatrix);
+	//matrixCollider = glm::rotate(matrixCollider, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+
+	colliderOBB.u = glm::quat_cast(matrixCollider);
+	matrixCollider = glm::scale(matrixCollider, scale);
+	matrixCollider = glm::translate(matrixCollider, obb.c);
+	colliderOBB.e = obb.e * scale * glm::vec3(1.1f);
+	colliderOBB.c = glm::vec3(matrixCollider[3]);
+	addOrUpdateColliders(collider_lay, tag, colliderOBB, modelMatrix);
+}
+void setColliderSBB(std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> &collider_lay, std::string tag, glm::mat4 modelMatrix, AbstractModel::SBB sbb, float scale){
+	AbstractModel::SBB colliderSBB;
+	glm::mat4 matrixCollider = glm::scale(modelMatrix, glm::vec3(scale));
+	matrixCollider = glm::translate(matrixCollider, sbb.c);
+	colliderSBB.c = glm::vec3(matrixCollider[3]);
+	colliderSBB.ratio = sbb.ratio * scale;
+	addOrUpdateColliders(collider_lay, tag, colliderSBB, modelMatrix);
+}
+void setColliderRAY(std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>> &collider_lay, std::string tag, glm::mat4 modelMatrix, float range){
+	glm::mat4 modelMatrixRay = glm::mat4(modelMatrix);
+	AbstractModel::RAY ray(range, modelMatrixRay);
+	addOrUpdateColliders(collider_lay, "RayMainCharacter", ray, modelMatrix);
+}
+
 bool testSLABPLane(float p, float v, float min, float max, float &tmin, float &tmax) {
     if (fabs(v) <= 0.01) {
         return p >= min && p <= max;
@@ -110,8 +136,8 @@ bool testRaySBB(AbstractModel::RAY ray, AbstractModel::SBB sbb) {
 	
 	return glm::distance(sbb.c, vClosestPoint) <= sbb.ratio; // Se prueba si el punto mas cercao esta contenido en el radio de la esfera.
 }
-bool testSBBSBB(AbstractModel::SBB sbb1, AbstractModel::SBB sbb2) {
-	return glm::distance(sbb1.c, sbb2.c) <= (sbb1.ratio + sbb2.ratio); // Si la distancia entre los centros en menor o igual a la suma de los radios, significa que están en contacto
+bool testSBBSBB(AbstractModel::SBB a, AbstractModel::SBB b) {
+	return glm::distance(a.c, b.c) <= (a.ratio + b.ratio); // Si la distancia entre los centros en menor o igual a la suma de los radios, significa que están en contacto
 }
 bool testSBBOBB(AbstractModel::SBB sbb, AbstractModel::OBB obb){
 	float d = 0;
