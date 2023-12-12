@@ -110,6 +110,7 @@ void renderLayerRAY(std::map<std::string, std::tuple<AbstractModel::RAY, glm::ma
 		matrixCollider[3] = glm::vec4(std::get<0>(it->second).rmd, 1.0f);
 		//matrixCollider = glm::scale(matrixCollider, glm::vec3(0.05f, 0.05f, std::get<0>(it->second).mD));
 		rayCollider.setColor(color);
+		rayCollider.enableWireMode();
 		rayCollider.render(matrixCollider);
 	}
 }

@@ -95,12 +95,15 @@ glm::mat4 modelMatrixTankCannon = glm::mat4(1.0f);
 size_t animDHTankTracksIndex = 1, animDHTankCannonIndex = 1;
 
 //Proyectiles del jugador
-Sphere modelProyectile(5, 5);
+Model modelProyectile;
 glm::mat4 modelProyectileMatrix = glm::mat4(1.0f);
+glm::vec3 vecDirectProy = glm::vec3(0.0f);
 
-bool isJump = false;
-double tmv = 0;
-double startTimeJump = 0;
+const double velocityProy = 1.1f;
+
+bool isJump = false, triggerFire = true, proyectileTraveling = false;
+double tmvJump = 0, tmvShoot = 0;
+double startTimeJump = 0, startTimeShoot = 0;
 
 // Modelos de Edificios
 Model modelBuildingA;
@@ -207,8 +210,7 @@ void prepareDepthScene();
 bool processInput(bool continueApplication = true);
 
 // Implementacion de todas las funciones.
-void init(int width, int height, std::string strTitle, bool bFullScreen) {
-
+void init(int width, int height, std::string strTitle, bool bFullScreen){
 	/*******************************************
 	 * Inicio de fundamentales (No modificar)
 	 *******************************************/
@@ -290,9 +292,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	rayCollider.setShader(&shader);
 	rayCollider.setColor(glm::vec4(1.0));
 
-	modelProyectile.init();
-	modelProyectile.setShader(&shader);
-	modelProyectile.setColor(glm::vec4(0.0f, 0.5f, 0.5f, 0.8f));
+	
 
 	boxTerrain.init();
 	boxTerrain.setShader(&shaderMulLighting);
@@ -311,6 +311,8 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelTankTurret.loadModel("../models/DuckHunter/turret.obj");
 	modelTankCannon.loadModel("../models/DuckHunter/cannon.fbx");
 	modelTankTracks.loadModel("../models/DuckHunter/track.fbx");
+
+	modelProyectile.loadModel("../models/DuckHunter/Proyectile.obj");
 	
 	// Guardian
 	modelSoldierEnemy.loadModel("../models/Soldier/Soldier.fbx");
@@ -540,6 +542,7 @@ void destroy() {
 	modelTankTurret.destroy();
 	modelTankCannon.destroy();
 	modelTankTracks.destroy();
+
 	modelProyectile.destroy();
 
 	modelSoldierEnemy.destroy();
@@ -659,12 +662,20 @@ bool processInput(bool continueApplication) {
 		if(!isJump && buttons[0] == GLFW_PRESS){
 			isJump = true;
 			startTimeJump = currTime;
-			tmv = 0;
+			tmvJump = 0;
 		}
 	}
 	/*******************************************
 	 * Funcionalidad del Mouse
 	 *******************************************/
+	if(triggerFire && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
+		triggerFire = false; proyectileTraveling = true;
+		tmvShoot = 0; startTimeShoot = currTime;
+		modelProyectileMatrix = glm::scale(modelMatrixTankCannon, glm::vec3(75.0f));
+	}else if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE){
+		triggerFire = true;
+	}
+
 	camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
 	offsetX = 0.0f;
 	offsetY = 0.0f;
@@ -690,7 +701,7 @@ bool processInput(bool continueApplication) {
 	if(!isJump && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
 		isJump = true;
 		startTimeJump = currTime;
-		tmv = 0;
+		tmvJump = 0;
 	}
 
 	glfwPollEvents();
@@ -772,6 +783,8 @@ void prepareLightScene(){
 	modelTankCannon.setShader(&shaderMulLighting);
 	modelTankTracks.setShader(&shaderMulLighting);
 
+	modelProyectile.setShader(&shaderMulLighting);
+
 	modelSoldierEnemy.setShader(&shaderMulLighting);
 }
 void prepareDepthScene(){
@@ -783,6 +796,8 @@ void prepareDepthScene(){
 	modelTankTurret.setShader(&shaderDepth);
 	modelTankCannon.setShader(&shaderDepth);
 	modelTankTracks.setShader(&shaderDepth);
+
+	modelProyectile.setShader(&shaderDepth);
 
 	modelSoldierEnemy.setShader(&shaderDepth);
 }
@@ -853,8 +868,8 @@ void renderSolidScene(){
 	modelMatrixTankChasis[0] = glm::vec4(ejex, 0.0);
 	modelMatrixTankChasis[1] = glm::vec4(ejey, 0.0);
 	modelMatrixTankChasis[2] = glm::vec4(ejez, 0.0);
-	modelMatrixTankChasis[3][1] = -(GRAVITY * tmv * tmv) + (2.8 * tmv) + currHeight;
-	tmv = currTime - startTimeJump;
+	modelMatrixTankChasis[3][1] = -(GRAVITY * tmvJump * tmvJump) + (2.8 * tmvJump) + currHeight;
+	tmvJump = currTime - startTimeJump;
 	if(modelMatrixTankChasis[3][1] < currHeight){
 		isJump = false;
 		modelMatrixTankChasis[3][1] = currHeight;
@@ -882,10 +897,22 @@ void renderSolidScene(){
 		modelMatrixTankCannon = glm::rotate(modelMatrixTankCannon, camera->getPitch(), glm::vec3(1, 0, 0)); //Altura aplicada al cañón
 	modelMatrixTankCannon = glm::scale(modelMatrixTankCannon, glm::vec3(0.01f));
 	modelTankCannon.render(modelMatrixTankCannon);
-	modelMatrixTankCannon = glm::translate(modelMatrixTankCannon, glm::vec3(0.0f,0.0f,4.0f));//Traslacion al final del cañón
-
 	animDHTankTracksIndex = 1;//IDLE Index
 
+	
+	/*******************************************
+	 * Renderizado de proyectiles
+	 *******************************************/
+	//modelProyectileMatrix = glm::scale(modelMatrixTankCannon, glm::vec3(100.0f));
+	if(proyectileTraveling)
+		modelProyectileMatrix = glm::translate(modelProyectileMatrix, glm::vec3(0.0f, 0.0f, 3.0f + velocityProy * (currTime - startTimeShoot)));
+	else
+		modelProyectileMatrix = glm::scale(modelMatrixTankCannon, glm::vec3(75.0f));
+	if(glm::distance(glm::vec3(modelProyectileMatrix[3]), glm::vec3(modelMatrixTankCannon[3])) > 50.0f ) {
+		proyectileTraveling = false;
+		modelProyectileMatrix = glm::scale(modelMatrixTankCannon, glm::vec3(75.0f));
+	}
+	modelProyectile.render(modelProyectileMatrix);
 	/*******************************************
 	 * Objetos Con Rutina de Animación
 	 *******************************************/
@@ -937,7 +964,7 @@ void renderAlphaScene(bool render = true){
 	/**********
 	 * Render de las transparencias
 	 */
-	modelProyectile.render(modelProyectileMatrix);
+	
 	glEnable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
 
@@ -1204,6 +1231,7 @@ void applicationLoop() {
 				}
 		}
 
+		setColliderSBB(collidersSBB, "Proyectile", modelProyectileMatrix, modelProyectile.getSbb(), 1.0f);
 		setColliderOBB(collidersOBB, "MainCharacterChasis", modelMatrixTankChasis, modelTankChasis.getObb(), glm::vec3(1.0f));
 		setColliderOBB(collidersOBB, "MainCharacterTurret", modelMatrixTankTurret, modelTankTurret.getObb(), glm::vec3(1.0f));
 		setColliderRAY(collidersRAY, "RayMainCharacter", modelMatrixTankCannon, 10.0f);
@@ -1230,7 +1258,7 @@ void applicationLoop() {
 			bool isCollision = false;
 			for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator jt = collidersSBB.begin(); jt != collidersSBB.end(); jt++) {
 				if (it != jt && testSBBSBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					std::cout << "Hay colision entre " << it->first << " y el modelo " << jt->first << std::endl;
+					//std::cout << "Hay colision entre " << it->first << " y el modelo " << jt->first << std::endl;
 					isCollision = true;
 				}
 			}
@@ -1241,7 +1269,7 @@ void applicationLoop() {
 			bool isColision = false;
 			for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt = collidersOBB.begin(); jt != collidersOBB.end(); jt++) {
 				if (it != jt && testOBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					std::cout << "Hay colision entre " << it->first << " y el modelo" << jt->first << std::endl;
+					//std::cout << "Hay colision entre " << it->first << " y el modelo" << jt->first << std::endl;
 					isColision = true;
 				}
 			}
@@ -1252,7 +1280,7 @@ void applicationLoop() {
 			bool isCollision = false;
 			for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt = collidersOBB.begin(); jt != collidersOBB.end(); jt++) {
 				if (testSBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					std::cout << "Hay colision del " << it->first << " y el modelo" << jt->first << std::endl;
+					//std::cout << "Hay colision del " << it->first << " y el modelo" << jt->first << std::endl;
 					isCollision = true;
 					addOrUpdateCollisionDetection(collisionDetection, jt->first, true);
 				}
@@ -1282,10 +1310,9 @@ void applicationLoop() {
 		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = collidersSBB.begin(); it != collidersSBB.end(); it++) 
 			for (std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>>::iterator jt = collidersRAY.begin(); jt != collidersRAY.end(); jt++)
 				if(testRaySBB(std::get<0>(jt->second), std::get<0>(it->second))){
-					std::cout << "Hay colision entre el rayo "<< jt->first <<" y el modelo " << it->first << std::endl;
+					//std::cout << "Hay colision entre el rayo "<< jt->first <<" y el modelo " << it->first << std::endl;
 				}
-		
-
+	
 		glfwSwapBuffers(window);
 
 		/****************************
