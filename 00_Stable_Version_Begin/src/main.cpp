@@ -163,9 +163,10 @@ std::string fileNames[6] = {
 /************************************Capa de Colision****************************************/
 /********************************************************************************************/
 
-std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> colliderBuildings;
-std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> collidersOBB;
-std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> collidersSBB;
+std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> buildingsCollOBB;
+std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> mainCharCollOBB;
+std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> enemyCollOBB;
+std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> proyectileCollSBB;
 std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>> collidersRAY;
 
 /********************************************************************************************/
@@ -325,7 +326,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen){
 	}
 	
 	// Guardian
-	modelSoldierEnemy.loadModel("../models/Soldier/Soldier.fbx");
+	modelSoldierEnemy.loadModel("../models/Soldier/Soldier1.fbx");
 	init_rSE1();
 
 	// Terreno
@@ -948,7 +949,7 @@ void renderSolidScene(){
 		modelMatrixSoldierEnemy[1] = glm::vec4(axisY, 0.0);
 		modelMatrixSoldierEnemy[2] = glm::vec4(axisZ, 0.0);
 		//Aplicando el desplazamiento por gravedad
-		modelMatrixSoldierEnemy[3][1] = terrain.getHeightTerrain(modelMatrixSoldierEnemy[3][0], modelMatrixSoldierEnemy[3][2]);
+		modelMatrixSoldierEnemy[3][1] = terrain.getHeightTerrain(modelMatrixSoldierEnemy[3][0], modelMatrixSoldierEnemy[3][2]) + 0.85f;
 		modelMatrixSoldierEnemy = glm::scale(modelMatrixSoldierEnemy, glm::vec3(0.0008f));
 		modelSoldierEnemy.render(modelMatrixSoldierEnemy);
 		modelSoldierEnemy.setAnimationIndex(vecAnimationSEIndex[i]);
@@ -1237,107 +1238,86 @@ void applicationLoop() {
 			if(!itBuild->first.compare("EdificioA"))
 				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
-					setColliderOBB(colliderBuildings, "EdificioA " + std::to_string(counterBuildCollider[0]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
+					setColliderOBB(buildingsCollOBB, "EdificioA " + std::to_string(counterBuildCollider[0]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
 					counterBuildCollider[0]++;
 				}
 			if(!itBuild->first.compare("EdificioB"))
 				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
-					setColliderOBB(colliderBuildings, "EdificioB " + std::to_string(counterBuildCollider[1]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
+					setColliderOBB(buildingsCollOBB, "EdificioB " + std::to_string(counterBuildCollider[1]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
 					counterBuildCollider[1]++;
 				}
 			if(!itBuild->first.compare("EdificioC"))
 				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
-					setColliderOBB(colliderBuildings, "EdificioC " + std::to_string(counterBuildCollider[2]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
+					setColliderOBB(buildingsCollOBB, "EdificioC " + std::to_string(counterBuildCollider[2]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
 					counterBuildCollider[2]++;
 				}
 		}
 
 		//Adjunto y actualizacion de colisiones
 		for(size_t i = 0; i < MAX_N_PROYECTILES; i++)
-			setColliderSBB(collidersSBB, "ProyectilePlayer" + std::to_string(i), vecModelMatrixProy[i], modelProyectile.getSbb(), 0.5f);
+			setColliderSBB(proyectileCollSBB, "ProyectilePlayer" + std::to_string(i), vecModelMatrixProy[i], modelProyectile.getSbb(), 0.5f);
 
-		setColliderOBB(collidersOBB, "MainCharacterChasis", modelMatrixTankChasis, modelTankChasis.getObb(), glm::vec3(1.0f));
-		setColliderOBB(collidersOBB, "MainCharacterTurret", modelMatrixTankTurret, modelTankTurret.getObb(), glm::vec3(1.0f));
+		setColliderOBB(mainCharCollOBB, "MainCharacterChasis", modelMatrixTankChasis, modelTankChasis.getObb(), glm::vec3(1.0f));
+		setColliderOBB(mainCharCollOBB, "MainCharacterTurret", modelMatrixTankTurret, modelTankTurret.getObb(), glm::vec3(1.0f));
 		setColliderRAY(collidersRAY, "RayMainCharacter", modelMatrixTankCannon, 10.0f);
 		
 		for(size_t i = 0; i < vecAnimationSEIndex.size(); i++){
 			glm::mat4 modelMatrixColliderSE = glm::translate(glm::mat4(1.0f), rSE1.getVector(i));
 			modelMatrixColliderSE = glm::rotate(modelMatrixColliderSE, glm::radians(rSE1.getScale(i)), glm::vec3(0, 1, 0));
-			setColliderOBB(collidersOBB, "SoldadoEnemigoL1_" + std::to_string(i), modelMatrixColliderSE, modelSoldierEnemy.getObb(), glm::vec3(0.1));
+			modelMatrixColliderSE[3][1] = terrain.getHeightTerrain(modelMatrixColliderSE[3][0], modelMatrixColliderSE[3][2]) + 1.35f;
+			setColliderOBB(enemyCollOBB, "SoldadoEnemigoL1_" + std::to_string(i), modelMatrixColliderSE, modelSoldierEnemy.getObb(), glm::vec3(0.05f, 0.075f, 0.05f));
 		}
-
 		/*******************************************
 		 * Render de colliders
 		 *******************************************/
 		renderLayerRAY(collidersRAY, rayCollider, glm::vec4(1.0f));
-		renderLayerOBB(collidersOBB, boxCollider, glm::vec4(1.0f));
-		renderLayerOBB(colliderBuildings, boxCollider, glm::vec4(1.0f));
-		renderLayerSBB(collidersSBB, sphereCollider, glm::vec4(0.0f, 0.5f, 0.5f, 1.0f));
+		renderLayerOBB(mainCharCollOBB, boxCollider, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+		renderLayerOBB(buildingsCollOBB, boxCollider, glm::vec4(1.0f));
+		renderLayerOBB(enemyCollOBB, boxCollider, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+		renderLayerSBB(proyectileCollSBB, sphereCollider, glm::vec4(0.0f, 0.5f, 0.5f, 1.0f));
 
 		/**********Render de transparencias***************/
 		renderAlphaScene();
-
-		/*********************Prueba de colisiones****************************/
-		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = collidersSBB.begin(); it != collidersSBB.end(); it++) {
-			bool isCollision = false;
-			for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator jt = collidersSBB.begin(); jt != collidersSBB.end(); jt++) {
-				if (it != jt && testSBBSBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					//std::cout << "Hay colision entre " << it->first << " y el modelo " << jt->first << std::endl;
-					isCollision = true;
-				}
-			}
-			addOrUpdateCollisionDetection(collisionDetection, it->first, isCollision);
-		}
-
-		for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator it = collidersOBB.begin(); it != collidersOBB.end(); it++) {
-			bool isColision = false;
-			for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt = collidersOBB.begin(); jt != collidersOBB.end(); jt++) {
-				if (it != jt && testOBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					//std::cout << "Hay colision entre " << it->first << " y el modelo" << jt->first << std::endl;
-					isColision = true;
-				}
-			}
-			addOrUpdateCollisionDetection(collisionDetection, it->first, isColision);
-		}
-
-		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = collidersSBB.begin(); it != collidersSBB.end(); it++) {
-			bool isCollision = false;
-			for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt = collidersOBB.begin(); jt != collidersOBB.end(); jt++) {
+		/*******************************************
+		 * Render de colliders
+		 *******************************************/
+		/*********************Pruebas de colisiones****************************/
+		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = proyectileCollSBB.begin(); it != proyectileCollSBB.end(); it++) {
+			bool isCollision = false; size_t i = 0;
+			for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt = enemyCollOBB.begin(); jt != enemyCollOBB.end(); jt++) {
 				if (testSBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					//std::cout << "Hay colision del " << it->first << " y el modelo" << jt->first << std::endl;
+					std::cout << "Enemigo impactado " << jt->first << " por el proyectil " << it->first << std::endl;
+					vecAnimationSEIndex[i] = 4;//Animacion de muerte
 					isCollision = true;
-					addOrUpdateCollisionDetection(collisionDetection, jt->first, true);
 				}
+			i = (i + 1) % vecAnimationSEIndex.size();
 			}
 			addOrUpdateCollisionDetection(collisionDetection, it->first, isCollision);
 		}
-
+		/*********************Accion en Colisiones****************************/
 		std::map<std::string, bool>::iterator itCollision;
 		for (itCollision = collisionDetection.begin(); itCollision != collisionDetection.end(); itCollision++) {
-			std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator sbbBuscado = collidersSBB.find(itCollision->first);
-			std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator obbBuscado = collidersOBB.find(itCollision->first);
-			if (sbbBuscado != collidersSBB.end()) {
+			std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator sbbBuscado = proyectileCollSBB.find(itCollision->first);
+			std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator obbBuscado = enemyCollOBB.find(itCollision->first);
+			if (sbbBuscado != proyectileCollSBB.end()) {
 				if (!itCollision->second) 
-					addOrUpdateColliders(collidersSBB, itCollision->first);
+					addOrUpdateColliders(proyectileCollSBB, itCollision->first);
 			}
-			if (obbBuscado != collidersOBB.end()) {
+			if (obbBuscado != enemyCollOBB.end()) {
 				if (!itCollision->second) 
-					addOrUpdateColliders(collidersOBB, itCollision->first);
+					addOrUpdateColliders(enemyCollOBB, itCollision->first);
 				else {
-					if (itCollision->first.compare("MainCharacter") == 0)
-						modelMatrixTankChasis = std::get<1>(obbBuscado->second);
+					for(size_t i = 0; i < vecAnimationSEIndex.size(); i++)
+						if (itCollision->first.compare("SoldadoEnemigoL1_" + std::to_string(i)) == 0){
+							//vecAnimationSEIndex[i] = 3;//Animacion de morir
+							//std::cout << "Soldado " << i << " Abatido!!!";
+						}
+							//modelMatrixTankChasis = std::get<1>(obbBuscado->second); //Retornar a la posicion anterior
 				}
 			}
 		}
-
-		//Rayo con Esfera
-		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = collidersSBB.begin(); it != collidersSBB.end(); it++) 
-			for (std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>>::iterator jt = collidersRAY.begin(); jt != collidersRAY.end(); jt++)
-				if(testRaySBB(std::get<0>(jt->second), std::get<0>(it->second))){
-					//std::cout << "Hay colision entre el rayo "<< jt->first <<" y el modelo " << it->first << std::endl;
-				}
 	
 		glfwSwapBuffers(window);
 
