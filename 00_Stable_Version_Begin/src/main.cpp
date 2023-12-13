@@ -96,14 +96,18 @@ size_t animDHTankTracksIndex = 1, animDHTankCannonIndex = 1;
 
 //Proyectiles del jugador
 Model modelProyectile;
-glm::mat4 modelProyectileMatrix = glm::mat4(1.0f);
-glm::vec3 vecDirectProy = glm::vec3(0.0f);
+const double VEL_PROY = 1.1, COOLDOWN = 0.12;
+const size_t MAX_N_PROYECTILES = 10;
+size_t currProy = 0;
+double currCool = 0.0;
 
-const double velocityProy = 1.1f;
+std::vector<glm::mat4> vecModelMatrixProy;
+std::vector<bool> vecTriggerFire;
+std::vector<double> vecStartTimeShoot;
 
-bool isJump = false, triggerFire = true, proyectileTraveling = false;
-double tmvJump = 0, tmvShoot = 0;
-double startTimeJump = 0, startTimeShoot = 0;
+//Salto del jugador
+bool isJump = false;
+double tmvJump = 0.0, startTimeJump = 0.0;
 
 // Modelos de Edificios
 Model modelBuildingA;
@@ -292,8 +296,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen){
 	rayCollider.setShader(&shader);
 	rayCollider.setColor(glm::vec4(1.0));
 
-	
-
 	boxTerrain.init();
 	boxTerrain.setShader(&shaderMulLighting);
 
@@ -311,8 +313,16 @@ void init(int width, int height, std::string strTitle, bool bFullScreen){
 	modelTankTurret.loadModel("../models/DuckHunter/turret.obj");
 	modelTankCannon.loadModel("../models/DuckHunter/cannon.fbx");
 	modelTankTracks.loadModel("../models/DuckHunter/track.fbx");
-
+	
+	/*******************************************
+	* Relleno de Vectores Proyectil
+	*******************************************/
 	modelProyectile.loadModel("../models/DuckHunter/Proyectile.obj");
+	for(size_t i = 0; i < MAX_N_PROYECTILES; i++){
+		vecModelMatrixProy.push_back(glm::mat4(1.0f));
+		vecTriggerFire.push_back(false);
+		vecStartTimeShoot.push_back(0.0);
+	}
 	
 	// Guardian
 	modelSoldierEnemy.loadModel("../models/Soldier/Soldier.fbx");
@@ -357,7 +367,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen){
 		skyboxTexture.freeImage();
 	}
 	// Definiendo las texturas del terreno
-	std::string textNameTerrain[5] = {"../Textures/grassy2.png", "../Textures/mud.png", "../Textures/grassFlowers.png", "../Textures/path.png", "../Textures/blendMap.png"};
+	std::string textNameTerrain[5] = {"../Textures/grassy2.png", "../Textures/mud.png", "../Textures/grassFlowers.png", "../Textures/path.png", "../Textures/blendMap2.png"};
 	for(size_t i = 0; i < 5; i++){
 		Texture text(textNameTerrain[i]);
 		text.loadImage();
@@ -666,15 +676,22 @@ bool processInput(bool continueApplication) {
 		}
 	}
 	/*******************************************
-	 * Funcionalidad del Mouse
-	 *******************************************/
-	if(triggerFire && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
-		triggerFire = false; proyectileTraveling = true;
-		tmvShoot = 0; startTimeShoot = currTime;
-		modelProyectileMatrix = glm::scale(modelMatrixTankCannon, glm::vec3(75.0f));
-	}else if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE){
-		triggerFire = true;
-	}
+	* Funcionalidad del Mouse
+	*******************************************/
+	if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
+		if(COOLDOWN <= currCool){
+			if(!vecTriggerFire[currProy]){//Solo se reinicia Si está activo
+				vecStartTimeShoot[currProy] = currTime;
+				vecModelMatrixProy[currProy] = glm::scale(modelMatrixTankCannon, glm::vec3(75.0f));
+				vecTriggerFire[currProy] = true;
+			}
+			currProy = (currProy + 1) % MAX_N_PROYECTILES;
+			currCool -= COOLDOWN;
+		}
+		animDHTankCannonIndex = 5;//Disparando
+	}else
+		animDHTankCannonIndex = 0;//No disparo
+	
 
 	camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
 	offsetX = 0.0f;
@@ -891,28 +908,31 @@ void renderSolidScene(){
 	modelTankTurret.render(modelMatrixTankTurret);
 
 	modelMatrixTankCannon = glm::translate( modelMatrixTankTurret, glm::vec3(0.0f, -0.08286f, 1.600726f)); 
-	if(camera->getPitch() >= 0.0f)
-		modelMatrixTankCannon = glm::rotate(modelMatrixTankCannon, 0.0f, glm::vec3(1, 0, 0)); //Movimiento limitado en X > 0°
-	else
-		modelMatrixTankCannon = glm::rotate(modelMatrixTankCannon, camera->getPitch(), glm::vec3(1, 0, 0)); //Altura aplicada al cañón
+	modelMatrixTankCannon = glm::rotate(modelMatrixTankCannon, glm::radians(45.0f * glm::sin(camera->getPitch()) - 15.0f), glm::vec3(1, 0, 0)); //Movimiento limitado en X > 0°
 	modelMatrixTankCannon = glm::scale(modelMatrixTankCannon, glm::vec3(0.01f));
+	modelTankCannon.setAnimationIndex(animDHTankCannonIndex);
 	modelTankCannon.render(modelMatrixTankCannon);
+
+	
 	animDHTankTracksIndex = 1;//IDLE Index
 
 	
 	/*******************************************
-	 * Renderizado de proyectiles
-	 *******************************************/
-	//modelProyectileMatrix = glm::scale(modelMatrixTankCannon, glm::vec3(100.0f));
-	if(proyectileTraveling)
-		modelProyectileMatrix = glm::translate(modelProyectileMatrix, glm::vec3(0.0f, 0.0f, 3.0f + velocityProy * (currTime - startTimeShoot)));
-	else
-		modelProyectileMatrix = glm::scale(modelMatrixTankCannon, glm::vec3(75.0f));
-	if(glm::distance(glm::vec3(modelProyectileMatrix[3]), glm::vec3(modelMatrixTankCannon[3])) > 50.0f ) {
-		proyectileTraveling = false;
-		modelProyectileMatrix = glm::scale(modelMatrixTankCannon, glm::vec3(75.0f));
+	* Renderizado de proyectiles
+	*******************************************/
+	
+	//Distancia Limite
+	for(size_t i = 0; i < MAX_N_PROYECTILES; i++){
+		if(vecTriggerFire[i]){
+			vecModelMatrixProy[i] = glm::translate(vecModelMatrixProy[i], glm::vec3(0.0f, 0.0f, 1.0f + VEL_PROY * (currTime - vecStartTimeShoot[i])));
+			vecTriggerFire[i] = glm::distance(glm::vec3(vecModelMatrixProy[i][3]), glm::vec3(modelMatrixTankCannon[3])) <= 65.0f;
+		}else{
+			//vecStartTimeShoot[currProy] = currTime;
+			vecModelMatrixProy[i] = glm::scale(modelMatrixTankCannon, glm::vec3(75.0f));
+		}
+
+		modelProyectile.render(vecModelMatrixProy[i]);
 	}
-	modelProyectile.render(modelProyectileMatrix);
 	/*******************************************
 	 * Objetos Con Rutina de Animación
 	 *******************************************/
@@ -1076,6 +1096,11 @@ void applicationLoop() {
 
 	while (psi) {
 		currTime = TimeManager::Instance().GetTime();
+		//Actualizacion del enfriamiento del disparo
+		currCool += (currTime - lastTime);
+		if(currCool > COOLDOWN)
+			currCool = COOLDOWN;
+
 		if(currTime - lastTime < 0.016666667){
 			glfwPollEvents();
 			continue;
@@ -1086,8 +1111,6 @@ void applicationLoop() {
 		psi = processInput(true);
 
 		std::map<std::string, bool> collisionDetection;
-
-
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -1231,7 +1254,10 @@ void applicationLoop() {
 				}
 		}
 
-		setColliderSBB(collidersSBB, "Proyectile", modelProyectileMatrix, modelProyectile.getSbb(), 1.0f);
+		//Adjunto y actualizacion de colisiones
+		for(size_t i = 0; i < MAX_N_PROYECTILES; i++)
+			setColliderSBB(collidersSBB, "ProyectilePlayer" + std::to_string(i), vecModelMatrixProy[i], modelProyectile.getSbb(), 0.5f);
+
 		setColliderOBB(collidersOBB, "MainCharacterChasis", modelMatrixTankChasis, modelTankChasis.getObb(), glm::vec3(1.0f));
 		setColliderOBB(collidersOBB, "MainCharacterTurret", modelMatrixTankTurret, modelTankTurret.getObb(), glm::vec3(1.0f));
 		setColliderRAY(collidersRAY, "RayMainCharacter", modelMatrixTankCannon, 10.0f);
@@ -1248,7 +1274,7 @@ void applicationLoop() {
 		renderLayerRAY(collidersRAY, rayCollider, glm::vec4(1.0f));
 		renderLayerOBB(collidersOBB, boxCollider, glm::vec4(1.0f));
 		renderLayerOBB(colliderBuildings, boxCollider, glm::vec4(1.0f));
-		renderLayerSBB(collidersSBB, sphereCollider, glm::vec4(1.0f));
+		renderLayerSBB(collidersSBB, sphereCollider, glm::vec4(0.0f, 0.5f, 0.5f, 1.0f));
 
 		/**********Render de transparencias***************/
 		renderAlphaScene();
