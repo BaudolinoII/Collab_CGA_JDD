@@ -111,6 +111,8 @@ double tmvJump = 0.0, startTimeJump = 0.0;
 
 // Modelos de Edificios
 Model modelBuildingA;
+Model modelBuildingB;
+Model modelBuildingC;
 std::map<std::string, std::vector<std::pair<glm::vec3, float>>> dataBuilds = {
 	{"EdificioA", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
 	{"EdificioB", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
@@ -307,7 +309,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen){
 	boxViewDepth.init();
 	boxViewDepth.setShader(&shaderViewDepth);
 
-	modelBuildingA.loadModel("../models/rock/rock.obj");
+	modelBuildingA.loadModel("../models/Edificios/Alto.obj");
+	modelBuildingB.loadModel("../models/Edificios/ApaAma.obj");
+	modelBuildingC.loadModel("../models/Edificios/Bodega.obj");
 
 	// MainCharacter Tanque Duck-Hunter
 	modelTankChasis.loadModel("../models/DuckHunter/chasis.obj");
@@ -548,6 +552,8 @@ void destroy() {
 
 	// Custom objects Delete
 	modelBuildingA.destroy();
+	modelBuildingB.destroy();
+	modelBuildingC.destroy();
 
 	modelTankChasis.destroy();
 	modelTankTurret.destroy();
@@ -795,6 +801,8 @@ void prepareLightScene(){
 	terrain.setShader(&shaderTerrain);
 	
 	modelBuildingA.setShader(&shaderMulLighting);
+	modelBuildingB.setShader(&shaderMulLighting);
+	modelBuildingC.setShader(&shaderMulLighting);
 
 	modelTankChasis.setShader(&shaderMulLighting);
 	modelTankTurret.setShader(&shaderMulLighting);
@@ -809,6 +817,8 @@ void prepareDepthScene(){
 	terrain.setShader(&shaderDepth);
 
 	modelBuildingA.setShader(&shaderDepth);
+	modelBuildingB.setShader(&shaderDepth);
+	modelBuildingC.setShader(&shaderDepth);
 
 	modelTankChasis.setShader(&shaderDepth);
 	modelTankTurret.setShader(&shaderDepth);
@@ -862,16 +872,16 @@ void renderSolidScene(){
 		if(!itBuild->first.compare("EdificioB"))
 			for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 				jtBuild->first.y = terrain.getHeightTerrain(jtBuild->first.x, jtBuild->first.z);
-				modelBuildingA.setPosition(jtBuild->first);
-				modelBuildingA.setOrientation(glm::vec3(0, jtBuild->second, 0));
-				modelBuildingA.render();
+				modelBuildingB.setPosition(jtBuild->first);
+				modelBuildingB.setOrientation(glm::vec3(0, jtBuild->second, 0));
+				modelBuildingB.render();
 			}
 		if(!itBuild->first.compare("EdificioC"))
 			for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 				jtBuild->first.y = terrain.getHeightTerrain(jtBuild->first.x, jtBuild->first.z);
-				modelBuildingA.setPosition(jtBuild->first);
-				modelBuildingA.setOrientation(glm::vec3(0, jtBuild->second, 0));
-				modelBuildingA.render();
+				modelBuildingC.setPosition(jtBuild->first);
+				modelBuildingC.setOrientation(glm::vec3(0, jtBuild->second, 0));
+				modelBuildingC.render();
 			}
 	}
 	
@@ -1238,19 +1248,22 @@ void applicationLoop() {
 			if(!itBuild->first.compare("EdificioA"))
 				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
+					modelMatrixBuilding = glm::rotate(modelMatrixBuilding, glm::radians(jtBuild->second),glm::vec3(0, 1, 0));
 					setColliderOBB(buildingsCollOBB, "EdificioA " + std::to_string(counterBuildCollider[0]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
 					counterBuildCollider[0]++;
 				}
 			if(!itBuild->first.compare("EdificioB"))
 				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
-					setColliderOBB(buildingsCollOBB, "EdificioB " + std::to_string(counterBuildCollider[1]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
+					modelMatrixBuilding = glm::rotate(modelMatrixBuilding, glm::radians(jtBuild->second),glm::vec3(0, 1, 0));
+					setColliderOBB(buildingsCollOBB, "EdificioB " + std::to_string(counterBuildCollider[1]), modelMatrixBuilding ,modelBuildingB.getObb(), glm::vec3(1.0f));
 					counterBuildCollider[1]++;
 				}
 			if(!itBuild->first.compare("EdificioC"))
 				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
-					setColliderOBB(buildingsCollOBB, "EdificioC " + std::to_string(counterBuildCollider[2]), modelMatrixBuilding ,modelBuildingA.getObb(), glm::vec3(1.0f));
+					modelMatrixBuilding = glm::rotate(modelMatrixBuilding, glm::radians(jtBuild->second),glm::vec3(0, 1, 0));
+					setColliderOBB(buildingsCollOBB, "EdificioC " + std::to_string(counterBuildCollider[2]), modelMatrixBuilding ,modelBuildingC.getObb(), glm::vec3(1.0f));
 					counterBuildCollider[2]++;
 				}
 		}
