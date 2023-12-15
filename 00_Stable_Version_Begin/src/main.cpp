@@ -51,7 +51,7 @@ const double GRAVITY = 1.81;
 
 bool beginScene = false, pressOption = false, exitApp = false;
 
-double deltaTime;
+double deltaTime, dTime = 0.0;
 double currTime, lastTime;
 
 int lastMousePosX, offsetX = 0;
@@ -119,9 +119,7 @@ Model modelBuildingD;
 Model modelBuildingE;
 Model modelBuildingF;
 Model modelBuildingG;
-Model modelBuildingH;
-Model modelBuildingI;
-Model modelBuildingJ;
+//Model modelBuildingH;
 std::map<std::string, std::vector<std::pair<glm::vec3, float>>> dataBuilds = {
 	{"EdificioA", {{glm::vec3(25.0f, 0.0f, -24.0f), 75.0f}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
 	{"EdificioB", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
@@ -130,35 +128,62 @@ std::map<std::string, std::vector<std::pair<glm::vec3, float>>> dataBuilds = {
 	{"EdificioE", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
 	{"EdificioF", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
 	{"EdificioG", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
-	{"EdificioH", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(40.52, 0, 23.24), 45.37}}},
-	{"EdificioI", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
-	{"EdificioJ", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(40.52, 0, 23.24), 45.37}}}
+	{"EdificioH", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(40.52, 0, 23.24), 45.37}}}
 };
 
 // Soldado Enemigo
 const size_t MAX_DAMAGE_SE = 10;
 Model modelSoldierEnemy;
+
+std::vector<std::pair<float, glm::vec3>> vecCurrSE = {
+	{0.0f, glm::vec3(0.0f)}
+};
 //Animation_Index,Count_Damage 
 std::vector<std::pair<size_t, size_t>> vecStateSEData = {
 	{0, 0}
+};
+std::vector<float> vecTimeSEData = {
+	0.0f
 };
 //Tanque Enemigo
 const size_t MAX_DAMAGE_TE = 100;
 Model modelTankEnemyChasis;
 Model modelTankEnemyTurret;
 //Rotation_Turret, Count_Damage
+std::vector<std::pair<float, glm::vec3>> vecCurrTE = {
+	{0.0f, glm::vec3(0.0f)}
+};
 std::vector<std::pair<float, size_t>> vecStateTEData = {
 	{0.0f, 0}
 };
+std::vector<char> vecStatusTEData = {
+	'a'
+};
 //Rutinas
-Routine rSE1(1, 1 ,5 ,300);//routineSoldierEnemy
+Routine rSE1(1, 1 ,5 ,500);//routineSoldierEnemy
+Routine rTE1(1, 1 ,5 ,300);//routineSoldierEnemy
+
+Routine turretDestroy(1, 1, 8, 60);//Animacion para la destruccion de la torreta
+
 void init_Routines(){
-	rSE1.setKeyFrame(0, 0, 90.0f, glm::vec3(-7.03, 0, -19.14));
+	rSE1.setKeyFrame(0, 0, 90.0f, glm::vec3(-7.03, 0, -19.14)); 
 	rSE1.setKeyFrame(1, 0, 80.0f, glm::vec3(24.41, 0, -34.57));
 	rSE1.setKeyFrame(2, 0, 70.0f, glm::vec3(-10.15, 0, -54.1));
 	rSE1.setKeyFrame(3, 0, 60.0f, glm::vec3(-24.41, 0, 34.57));
 	rSE1.setKeyFrame(4, 0, 50.0f, glm::vec3( 10.15, 0, 54.1));
-	rSE1.setAtCero();
+	rSE1.setAtCero(); 
+	rTE1.setKeyFrame(0, 0, 90.0f, glm::vec3(14.03, 0, -80.14));
+	rTE1.setKeyFrame(1, 0, 45.0f, glm::vec3(50.41, 0, 0.57));
+	rTE1.setAtCero();
+	turretDestroy.setKeyFrame(0, 0, 0.0f, glm::vec3(0.0f, 1.6f, 1.0f));
+	turretDestroy.setKeyFrame(1, 0, 35.0f, glm::vec3(0.0f, 4.0f, 1.1f));
+	turretDestroy.setKeyFrame(2, 0, 50.0f, glm::vec3(0.0f, 9.0f, 1.4f));
+	turretDestroy.setKeyFrame(3, 0, 85.0f, glm::vec3(0.0f, 16.0f, 1.7f));
+	turretDestroy.setKeyFrame(4, 0, 110.0f, glm::vec3(0.0f, 14.0f, 2.1f));
+	turretDestroy.setKeyFrame(5, 0, 145.0f, glm::vec3(0.0f, 7.0f, 2.4f));
+	turretDestroy.setKeyFrame(6, 0, 190.0f, glm::vec3(0.0f, 3.0f, 2.7f));
+	turretDestroy.setKeyFrame(7, 0, 225.0f, glm::vec3(0.0f, 0.0f, 3.0f));
+	turretDestroy.setAtCero();
 }
 /********************************************************************************************/
 /***********************************************Valores GL***********************************/
@@ -179,6 +204,15 @@ GLenum types[6] = {
 	GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
 	GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
 	GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
+
+/*
+"../Textures/SkyBox_GE/front.png",
+	"../Textures/SkyBox_GE/back.png",
+	"../Textures/SkyBox_GE/top.png",
+	"../Textures/SkyBox_GE/bottom.png",
+	"../Textures/SkyBox_GE/right.png",
+	"../Textures/SkyBox_GE/left.png" };
+*/
 
 std::string fileNames[6] = { 
 	"../Textures/mp_bloodvalley/blood-valley_ft.tga",
@@ -342,9 +376,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen){
 	modelBuildingE.loadModel("../models/Edificios/Casa2.obj");
 	modelBuildingF.loadModel("../models/Edificios/Departamento.obj");
 	modelBuildingG.loadModel("../models/Edificios/EdificioL.obj");
-	modelBuildingH.loadModel("../models/Edificios/ParedCompletaRota.obj");
-	modelBuildingI.loadModel("../models/Edificios/EsquinaConPasto.obj");
-	modelBuildingJ.loadModel("../models/Edificios/Rota.obj");
+	std::cout << "pointbreak"<<std::endl;
+	//modelBuildingH.loadModel("../models/Edificios/EsquinaConPasto.obj");
+	//std::cout << "pointbreak"<<std::endl;
 	// MainCharacter Tanque Duck-Hunter
 	modelTankChasis.loadModel("../models/DuckHunter/chasis.obj");
 	modelTankTurret.loadModel("../models/DuckHunter/turret.obj");
@@ -366,7 +400,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen){
 	modelTankEnemyChasis.loadModel("../models/Tank/T_34Chasis.obj");
 	modelTankEnemyTurret.loadModel("../models/Tank/T_34Turret.obj");
 	init_Routines();
-
+	std::cout << "Carga de modelos completada\n";
 	// Terreno
 	terrain.init();
 
@@ -480,7 +514,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen){
 	else 
 		std::cout << "Fallo la carga de textura" << std::endl;
 	textParticles.freeImage(); // Liberamos memoria
-
+	std::cout << "Carga de texturas completada\n";
 	/*******************************************
 	 * OpenAL init
 	 *******************************************/
@@ -560,8 +594,9 @@ void init(int width, int height, std::string strTitle, bool bFullScreen){
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
 
+	std::cout << "Carga de objetos completada\n";
+}
 void destroy() {
 	glfwDestroyWindow(window);
 	glfwTerminate();
@@ -592,9 +627,7 @@ void destroy() {
 	modelBuildingE.destroy();
 	modelBuildingF.destroy();
 	modelBuildingG.destroy();
-	modelBuildingH.destroy();
-	modelBuildingI.destroy();
-	modelBuildingJ.destroy();
+	//modelBuildingH.destroy();
 
 	modelTankChasis.destroy();
 	modelTankTurret.destroy();
@@ -850,9 +883,7 @@ void prepareLightScene(){
 	modelBuildingE.setShader(&shaderMulLighting);
 	modelBuildingF.setShader(&shaderMulLighting);
 	modelBuildingG.setShader(&shaderMulLighting);
-	modelBuildingH.setShader(&shaderMulLighting);
-	modelBuildingI.setShader(&shaderMulLighting);
-	modelBuildingJ.setShader(&shaderMulLighting);
+	//modelBuildingH.setShader(&shaderMulLighting);
 
 	modelTankChasis.setShader(&shaderMulLighting);
 	modelTankTurret.setShader(&shaderMulLighting);
@@ -875,9 +906,7 @@ void prepareDepthScene(){
 	modelBuildingE.setShader(&shaderDepth);
 	modelBuildingF.setShader(&shaderDepth);
 	modelBuildingG.setShader(&shaderDepth);
-	modelBuildingH.setShader(&shaderDepth);
-	modelBuildingI.setShader(&shaderDepth);
-	modelBuildingJ.setShader(&shaderDepth);
+	//modelBuildingH.setShader(&shaderDepth);
 
 	modelTankChasis.setShader(&shaderDepth);
 	modelTankTurret.setShader(&shaderDepth);
@@ -972,31 +1001,17 @@ void renderSolidScene(){
 				modelBuildingG.setOrientation(glm::vec3(0, jtBuild->second, 0));
 				modelBuildingG.render();
 			}
-		if(!itBuild->first.compare("EdificioH"))
+		/*if(!itBuild->first.compare("EdificioH"))
 			for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 				jtBuild->first.y = terrain.getHeightTerrain(jtBuild->first.x, jtBuild->first.z);
 				modelBuildingH.setPosition(jtBuild->first);
 				modelBuildingH.setOrientation(glm::vec3(0, jtBuild->second, 0));
 				modelBuildingH.render();
-			}
-		if(!itBuild->first.compare("EdificioI"))
-			for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
-				jtBuild->first.y = terrain.getHeightTerrain(jtBuild->first.x, jtBuild->first.z);
-				modelBuildingI.setPosition(jtBuild->first);
-				modelBuildingI.setOrientation(glm::vec3(0, jtBuild->second, 0));
-				modelBuildingI.render();
-			}
-		if(!itBuild->first.compare("EdificioJ"))
-			for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
-				jtBuild->first.y = terrain.getHeightTerrain(jtBuild->first.x, jtBuild->first.z);
-				modelBuildingJ.setPosition(jtBuild->first);
-				modelBuildingJ.setOrientation(glm::vec3(0, jtBuild->second, 0));
-				modelBuildingJ.render();
-			}
+			}*/
 	}
 	
 	/*****************************************
-	 * Objetos animados por huesos
+	 * Modelo protagonista
 	 * **************************************/
 	float currHeight = terrain.getHeightTerrain(modelMatrixTankChasis[3][0], modelMatrixTankChasis[3][2]);
 	glm::vec3 ejey = glm::normalize(terrain.getNormalTerrain(modelMatrixTankChasis[3][0], modelMatrixTankChasis[3][2]));
@@ -1041,6 +1056,10 @@ void renderSolidScene(){
 	/*******************************************
 	* Renderizado de proyectiles
 	*******************************************/
+	//Enfriamiento del disparo
+	currCool += dTime;
+	if(currCool > COOLDOWN)
+		currCool = COOLDOWN;
 	
 	//Distancia Limite
 	for(size_t i = 0; i < MAX_N_PROYECTILES; i++){
@@ -1059,8 +1078,17 @@ void renderSolidScene(){
 	 *******************************************/
 	rSE1.animacion();
 	for(int i = 0; i < vecStateSEData.size(); i++){
-		glm::mat4 modelMatrixSoldierEnemy = translate(glm::mat4(1.0f), rSE1.getVector(i));
-		modelMatrixSoldierEnemy = glm::rotate(modelMatrixSoldierEnemy, glm::radians(rSE1.getScale(i)), glm::vec3(0,1,0));
+		if(vecStateSEData[i].first != 4 && vecStateSEData[i].first != 5){
+			vecCurrSE[i].second = rSE1.getVector(i);
+			vecCurrSE[i].first = rSE1.getScale(i);
+		}else{
+			if(vecTimeSEData[i] > 1.0)
+				vecStateSEData[i].first = 5;//Dejar de hacer la animacion de muerte
+			else
+				vecTimeSEData[i] += dTime;
+		}
+		glm::mat4 modelMatrixSoldierEnemy = translate(glm::mat4(1.0f),vecCurrSE[i].second);
+		modelMatrixSoldierEnemy = glm::rotate(modelMatrixSoldierEnemy, glm::radians(vecCurrSE[i].first), glm::vec3(0,1,0));
 		glm::vec3 axisY = glm::normalize(terrain.getNormalTerrain(modelMatrixSoldierEnemy[3][0], modelMatrixSoldierEnemy[3][2]));
 		glm::vec3 axisX = glm::vec3(modelMatrixSoldierEnemy[0]);
 		glm::vec3 axisZ = glm::normalize(glm::cross(axisX, axisY));
@@ -1074,10 +1102,14 @@ void renderSolidScene(){
 		modelSoldierEnemy.render(modelMatrixSoldierEnemy);
 		modelSoldierEnemy.setAnimationIndex(vecStateSEData[i].first);
 	}
-
+	rTE1.animacion();
 	for(int i = 0; i < vecStateTEData.size(); i++){
-		glm::mat4 modelMatrixTankEnemy = translate(glm::mat4(1.0f), rSE1.getVector(i));
-		modelMatrixTankEnemy = glm::rotate(modelMatrixTankEnemy, glm::radians(rSE1.getScale(i)), glm::vec3(0,1,0));
+		if(vecStatusTEData[i] == 'a'){
+			vecCurrTE[i].second = rTE1.getVector(i);
+			vecCurrTE[i].first = rTE1.getScale(i);
+		}
+		glm::mat4 modelMatrixTankEnemy = translate(glm::mat4(1.0f), vecCurrTE[i].second);
+		modelMatrixTankEnemy = glm::rotate(modelMatrixTankEnemy, glm::radians(vecCurrTE[i].first), glm::vec3(0,1,0));
 		glm::vec3 axisY = glm::normalize(terrain.getNormalTerrain(modelMatrixTankEnemy[3][0], modelMatrixTankEnemy[3][2]));
 		glm::vec3 axisX = glm::vec3(modelMatrixTankEnemy[0]);
 		glm::vec3 axisZ = glm::normalize(glm::cross(axisX, axisY));
@@ -1087,10 +1119,15 @@ void renderSolidScene(){
 		modelMatrixTankEnemy[2] = glm::vec4(axisZ, 0.0);
 		//Aplicando el desplazamiento por gravedad
 		modelMatrixTankEnemy[3][1] = terrain.getHeightTerrain(modelMatrixTankEnemy[3][0], modelMatrixTankEnemy[3][2]) + 0.85f;
-		modelMatrixTankEnemy = glm::scale(modelMatrixTankEnemy, glm::vec3(1.0f));
 		modelTankEnemyChasis.render(modelMatrixTankEnemy);
-		modelMatrixTankEnemy = glm::scale(modelMatrixTankEnemy, glm::vec3(1.0f));
-		modelMatrixTankEnemy = glm::translate(modelMatrixTankEnemy, glm::vec3(0.0f, 1.0f, 0.0f));
+		if(vecStatusTEData[i] == 'd'){//Animacion de destruccion del tanque
+			turretDestroy.animacion();
+			modelMatrixTankEnemy = glm::translate(modelMatrixTankEnemy, turretDestroy.getVector(i));
+			modelMatrixTankEnemy = glm::rotate(modelMatrixTankEnemy, glm::radians(turretDestroy.getScale(i)), glm::vec3(1, 1, 1));
+		}else{
+			modelMatrixTankEnemy = glm::translate(modelMatrixTankEnemy, glm::vec3(0.0f, 1.63163f, 1.0437f));
+			modelMatrixTankEnemy = glm::rotate(modelMatrixTankEnemy, glm::radians(vecStateTEData[i].first), glm::vec3(0, 1, 0));
+		}
 		modelTankEnemyTurret.render(modelMatrixTankEnemy);
 	}
 
@@ -1139,7 +1176,7 @@ void renderAlphaScene(bool render = true){
 		boxIntro.render();
 		glDisable(GL_BLEND);
 
-		modelText->render("Texto en OpenGL", -1, 0);
+		modelText->render("Score: 1000", 2, 10);
 	}
 }
 void renderScene(){
@@ -1233,13 +1270,12 @@ void applicationLoop() {
 	}
 
 	rSE1.setPlay(true);
-
+	rTE1.setPlay(true);
+	turretDestroy.setPlay(true);
 	while (psi) {
 		currTime = TimeManager::Instance().GetTime();
-		//Actualizacion del enfriamiento del disparo
-		currCool += (currTime - lastTime);
-		if(currCool > COOLDOWN)
-			currCool = COOLDOWN;
+		//Actualizacion de Tiempo 
+		dTime = (currTime - lastTime);
 
 		if(currTime - lastTime < 0.016666667){
 			glfwPollEvents();
@@ -1423,45 +1459,43 @@ void applicationLoop() {
 					setColliderOBB(buildingsCollOBB, "EdificioG " + std::to_string(counterBuildCollider[6]), modelMatrixBuilding ,modelBuildingG.getObb(), glm::vec3(1.0f));
 					counterBuildCollider[6]++;
 				}
-			if(!itBuild->first.compare("EdificioH"))
+			/*if(!itBuild->first.compare("EdificioH"))
 				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
 					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
 					modelMatrixBuilding = glm::rotate(modelMatrixBuilding, glm::radians(jtBuild->second),glm::vec3(0, 1, 0));
 					setColliderOBB(buildingsCollOBB, "EdificioH " + std::to_string(counterBuildCollider[7]), modelMatrixBuilding ,modelBuildingH.getObb(), glm::vec3(1.0f));
 					counterBuildCollider[7]++;
-				}
-			if(!itBuild->first.compare("EdificioI"))
-				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
-					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
-					modelMatrixBuilding = glm::rotate(modelMatrixBuilding, glm::radians(jtBuild->second),glm::vec3(0, 1, 0));
-					setColliderOBB(buildingsCollOBB, "EdificioI " + std::to_string(counterBuildCollider[8]), modelMatrixBuilding ,modelBuildingI.getObb(), glm::vec3(1.0f));
-					counterBuildCollider[8]++;
-				}
-			if(!itBuild->first.compare("EdificioJ"))
-				for(jtBuild = itBuild->second.begin(); jtBuild != itBuild->second.end(); jtBuild++){
-					glm::mat4 modelMatrixBuilding= glm::translate(glm::mat4(1.0f), jtBuild->first);
-					modelMatrixBuilding = glm::rotate(modelMatrixBuilding, glm::radians(jtBuild->second),glm::vec3(0, 1, 0));
-					setColliderOBB(buildingsCollOBB, "EdificioJ " + std::to_string(counterBuildCollider[9]), modelMatrixBuilding ,modelBuildingJ.getObb(), glm::vec3(1.0f));
-					counterBuildCollider[9]++;
-				}
+				}*/
 		}
+		counterBuildCollider.clear();
 
 		//Adjunto y actualizacion de colisiones
 		for(size_t i = 0; i < MAX_N_PROYECTILES; i++)
-			setColliderSBB(proyectileCollSBB, "ProyectilePlayer" + std::to_string(i), vecModelMatrixProy[i], modelProyectile.getSbb(), 0.5f);
+			setColliderSBB(proyectileCollSBB, "PlayerProyectile_" + std::to_string(i), vecModelMatrixProy[i], modelProyectile.getSbb(), 0.5f);
 
 		setColliderOBB(mainCharCollOBB, "MainCharacterChasis", modelMatrixTankChasis, modelTankChasis.getObb(), glm::vec3(1.0f));
 		setColliderOBB(mainCharCollOBB, "MainCharacterTurret", modelMatrixTankTurret, modelTankTurret.getObb(), glm::vec3(1.0f));
-		
-		for(size_t i = 0; i < vecStateSEData.size(); i++){
-			glm::mat4 modelMatrixColliderSE = glm::translate(glm::mat4(1.0f), rSE1.getVector(i));
-			modelMatrixColliderSE = glm::rotate(modelMatrixColliderSE, glm::radians(rSE1.getScale(i)), glm::vec3(0, 1, 0));
-			modelMatrixColliderSE[3][1] = terrain.getHeightTerrain(modelMatrixColliderSE[3][0], modelMatrixColliderSE[3][2]) + 1.35f;
-			setColliderOBB(enemyCollOBB, "SoldadoEnemigoL1_" + std::to_string(i), modelMatrixColliderSE, modelSoldierEnemy.getObb(), glm::vec3(0.05f, 0.075f, 0.05f));
-		}
+		//Cajas para soldados
+		for(size_t i = 0; i < vecStateSEData.size(); i++)
+			if(vecStateSEData[i].first != 4 && vecStateSEData[i].first != 5){
+				glm::mat4 modelMatrixColliderSE = glm::translate(glm::mat4(1.0f), rSE1.getVector(i));
+				modelMatrixColliderSE = glm::rotate(modelMatrixColliderSE, glm::radians(rSE1.getScale(i)), glm::vec3(0, 1, 0));
+				modelMatrixColliderSE[3][1] = terrain.getHeightTerrain(modelMatrixColliderSE[3][0], modelMatrixColliderSE[3][2]) + 1.35f;
+				setColliderOBB(enemyCollOBB, "SoldadoEnemigoL1_" + std::to_string(i), modelMatrixColliderSE, modelSoldierEnemy.getObb(), glm::vec3(0.05f, 0.075f, 0.05f));
+			}
+		//Cajas para el tanque
+		for(size_t i = 0; i < vecStateTEData.size(); i++)
+			if(vecStatusTEData[i] == 'a'){
+				glm::mat4 modelMatrixColliderTE = glm::translate(glm::mat4(1.0f), rTE1.getVector(i));
+				modelMatrixColliderTE = glm::rotate(modelMatrixColliderTE, glm::radians(rTE1.getScale(i)), glm::vec3(0, 1, 0));
+				modelMatrixColliderTE[3][1] = terrain.getHeightTerrain(modelMatrixColliderTE[3][0], modelMatrixColliderTE[3][2]) + 0.85f;
+				setColliderOBB(enemyCollOBB, "TanqueChasisEnemigoL1_" + std::to_string(i), modelMatrixColliderTE, modelTankEnemyChasis.getObb(), glm::vec3(1.0f));
+				modelMatrixColliderTE = glm::translate(modelMatrixColliderTE, glm::vec3(0.0f, 1.63163f, 1.0437f));
+				setColliderOBB(enemyCollOBB, "TanqueTurretEnemigoL1_" + std::to_string(i), modelMatrixColliderTE, modelTankEnemyTurret.getObb(), glm::vec3(1.0f));
+			}
 		/*******************************************
 		 * Render de colliders
-		 *******************************************/
+		 ******************************************
 		renderLayerRAY(collidersRAY, rayCollider, glm::vec4(1.0f));
 		renderLayerOBB(mainCharCollOBB, boxCollider, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		renderLayerOBB(buildingsCollOBB, boxCollider, glm::vec4(1.0f));
@@ -1475,18 +1509,32 @@ void applicationLoop() {
 		 *******************************************/
 		/*********************Pruebas de colisiones****************************/
 		for (std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator it = proyectileCollSBB.begin(); it != proyectileCollSBB.end(); it++) {
-			bool isCollision = false; size_t i = 0;
+			bool isCollision = false;
 			for (std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator jt = enemyCollOBB.begin(); jt != enemyCollOBB.end(); jt++) {
 				if (testSBBOBB(std::get<0>(it->second), std::get<0>(jt->second))) {
-					std::cout << "Enemigo impactado " << jt->first << " por el proyectil " << it->first << std::endl;
-					vecStateSEData[i].second += DAMAGE;
-					if(vecStateSEData[i].second >= MAX_DAMAGE_SE){
-						vecStateSEData[i].first = 4;//Animacion de muerte
-						//Procedimiento de retención y/o reinicio de la ronda
-					}
+					//std::cout << "Enemigo impactado " << jt->first << " por el proyectil " << it->first << std::endl;
+					size_t indexProy = std::stoi(it->first.substr(it->first.find_first_of('_') + 1, it->first.size() - (int)it->first.find_first_of('_')));
+					//Devolvemos el proyectil correspondiente a su reinicio
+					vecModelMatrixProy[indexProy] = glm::scale(modelMatrixTankCannon, glm::vec3(75.0f));
+					vecTriggerFire[indexProy] = false;
 					isCollision = true;
+					if(!jt->first.substr(0,7).compare("Soldado")){
+						size_t index = std::stoi(jt->first.substr(jt->first.find_first_of('_') + 1, jt->first.size() - (int)jt->first.find_first_of('_')));
+						if(vecStateSEData[index].first != 4 && vecStateSEData[index].first != 5){
+							vecStateSEData[index].second += DAMAGE;
+							if(vecStateSEData[index].second >= MAX_DAMAGE_SE && vecStateSEData[index].first != 5)
+								vecStateSEData[index].first = 4;//Animacion de muerte
+						}
+					}
+					if(!jt->first.substr(0,6).compare("Tanque")){
+						size_t index = std::stoi(jt->first.substr(jt->first.find_first_of('_') + 1, jt->first.size() - (int)jt->first.find_first_of('_')));
+						if(vecStatusTEData[index] == 'a'){
+							vecStateTEData[index].second += DAMAGE;
+							if(vecStateTEData[index].second >= MAX_DAMAGE_TE)
+								vecStatusTEData[index] = 'd';//Estatus de muerte
+						}
+					}
 				}
-			i = (i + 1) % vecStateSEData.size();
 			}
 			addOrUpdateCollisionDetection(collisionDetection, it->first, isCollision);
 		}

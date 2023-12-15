@@ -14,5 +14,4 @@ Release/*.pbd
 CGALib/ide/CGALib/Debug/*
 RemoteSystemsTempFiles/
 .metadata/
-bin/*
 build/*
