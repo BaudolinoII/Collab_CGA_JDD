@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\01_Clear_Template.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\01_Clear_Template.dir/objects.a @CMakeFiles\01_Clear_Template.dir\objects1.rsp
+C:\msys64\mingw64\bin\g++.exe -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\01_Clear_Template.dir/objects.a -Wl,--no-whole-archive -o C:\Users\espin\OneDrive\Documentos\Semestre2024\Graficos_adv\Collab_CGA_JDD\bin\01_Clear_Template.exe -Wl,--out-implib,lib01_Clear_Template.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\01_Clear_Template.dir\linklibs.rsp

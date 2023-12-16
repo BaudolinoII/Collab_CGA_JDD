@@ -121,29 +121,29 @@ Model modelBuildingF;
 Model modelBuildingG;
 //Model modelBuildingH;
 std::map<std::string, std::vector<std::pair<glm::vec3, float>>> dataBuilds = {
-	{"EdificioA", {{glm::vec3(25.0f, 0.0f, -24.0f), 75.0f}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
-	{"EdificioB", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
-	{"EdificioC", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
-	{"EdificioD", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(40.52, 0, 23.24), 45.37}}},
-	{"EdificioE", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
-	{"EdificioF", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
-	{"EdificioG", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(-52.73, 0, -3.90), 25.0}}},
-	{"EdificioH", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(40.52, 0, 23.24), 45.37}}}
+	{"EdificioA", {{glm::vec3(-10.0f, 0.0f, 17.0f), 110.0f}, {glm::vec3(-45.0f, 0.0f, -45.0f), 0}}},
+	{"EdificioB", {{glm::vec3(0, 0, -15), 0}}},
+	{"EdificioC", {{glm::vec3(40, 0, -25), 270}, {glm::vec3(-40, 0, -15), 285}}},
+	{"EdificioD", {{glm::vec3(35, -1, 50), 180},{glm::vec3(-30, 0, -65), 0}}},
+	{"EdificioE", {{glm::vec3(50, 0, 50), 180},{glm::vec3(-50, 0, -40), 289}}},
+	{"EdificioF", {{glm::vec3(10, 0, 60), 180}, {glm::vec3(16, 0, 59), 180},{glm::vec3(0, 0, -65), 0}}},
+	{"EdificioG", {{glm::vec3(0, 0, 0), 111.37}}},
+	//{"EdificioH", {{glm::vec3(-36.52, 0, -23.24), 111.37}, {glm::vec3(40.52, 0, 23.24), 45.37}}},
+	{"EdificioI", {{glm::vec3(15, 0, -90), 270}}}
 };
-
 // Soldado Enemigo
 const size_t MAX_DAMAGE_SE = 10;
 Model modelSoldierEnemy;
 
 std::vector<std::pair<float, glm::vec3>> vecCurrSE = {
-	{0.0f, glm::vec3(0.0f)}
+	{0.0f, glm::vec3(0.0f)},{0.0f, glm::vec3(0.0f)}
 };
 //Animation_Index,Count_Damage 
 std::vector<std::pair<size_t, size_t>> vecStateSEData = {
-	{0, 0}
+	{0, 0},{0, 0}
 };
 std::vector<float> vecTimeSEData = {
-	0.0f
+	0.0f,0.0f
 };
 //Tanque Enemigo
 const size_t MAX_DAMAGE_TE = 100;
@@ -151,29 +151,32 @@ Model modelTankEnemyChasis;
 Model modelTankEnemyTurret;
 //Rotation_Turret, Count_Damage
 std::vector<std::pair<float, glm::vec3>> vecCurrTE = {
-	{0.0f, glm::vec3(0.0f)}
+	{0.0f, glm::vec3(0.0f)},{0.0f, glm::vec3(0.0f)}
 };
 std::vector<std::pair<float, size_t>> vecStateTEData = {
-	{0.0f, 0}
+	{0.0f, 0},{0.0f, 0}
 };
 std::vector<char> vecStatusTEData = {
-	'a'
+	'a','a'
 };
 //Rutinas
-Routine rSE1(1, 1 ,5 ,500);//routineSoldierEnemy
-Routine rTE1(1, 1 ,5 ,300);//routineSoldierEnemy
+Routine rSE1(2, 2 ,5 ,500);//routineSoldierEnemy
+Routine rTE1(2, 2 ,5 ,300);//routineSoldierEnemy
 
-Routine turretDestroy(1, 1, 8, 60);//Animacion para la destruccion de la torreta
+Routine turretDestroy(1, 1, 8, 45);//Animacion para la destruccion de la torreta
 
 void init_Routines(){
-	rSE1.setKeyFrame(0, 0, 90.0f, glm::vec3(-7.03, 0, -19.14)); 
-	rSE1.setKeyFrame(1, 0, 80.0f, glm::vec3(24.41, 0, -34.57));
-	rSE1.setKeyFrame(2, 0, 70.0f, glm::vec3(-10.15, 0, -54.1));
-	rSE1.setKeyFrame(3, 0, 60.0f, glm::vec3(-24.41, 0, 34.57));
-	rSE1.setKeyFrame(4, 0, 50.0f, glm::vec3( 10.15, 0, 54.1));
+	rSE1.setKeyFrame(0, 0, 90.0f, glm::vec3(-7.03, 0, -19.14)); rSE1.setKeyFrame(0, 1, 40.0f, glm::vec3(24.41, 0, -34.57));
+	rSE1.setKeyFrame(1, 0, 80.0f, glm::vec3(-4.41, 0, -34.57)); rSE1.setKeyFrame(1, 1, 40.0f, glm::vec3(24.41, 0, -34.57));
+	rSE1.setKeyFrame(2, 0, 70.0f, glm::vec3(-10.15, 0,-60.1));  rSE1.setKeyFrame(2, 1, 30.0f, glm::vec3(24.41, 0, -34.57));
+	rSE1.setKeyFrame(3, 0, 60.0f, glm::vec3(-24.41, 0,-34.57)); rSE1.setKeyFrame(3, 1, 20.0f, glm::vec3(24.41, 0, -34.57));
+	rSE1.setKeyFrame(4, 0, 50.0f, glm::vec3(-40.15, 0, 2.1));   rSE1.setKeyFrame(4, 1, 20.0f, glm::vec3(24.41, 0, -34.57));
 	rSE1.setAtCero(); 
-	rTE1.setKeyFrame(0, 0, 90.0f, glm::vec3(14.03, 0, -80.14));
-	rTE1.setKeyFrame(1, 0, 45.0f, glm::vec3(50.41, 0, 0.57));
+	rTE1.setKeyFrame(0, 0, 90.0f, glm::vec3(14.03, 0, 80.14)); rTE1.setKeyFrame(0, 1, 45.0f, glm::vec3(50.41, 0, 0.57));
+	rTE1.setKeyFrame(1, 0, 45.0f, glm::vec3(50.41, 0, 40.57)); rTE1.setKeyFrame(1, 1, 45.0f, glm::vec3(50.41, 0, 0.57));
+	rTE1.setKeyFrame(2, 0, 40.0f, glm::vec3(14.03, 0, 20.14)); rTE1.setKeyFrame(2, 1, 45.0f, glm::vec3(50.41, 0, 0.57));
+	rTE1.setKeyFrame(3, 0, 30.0f, glm::vec3(50.41, 0,  0.57)); rTE1.setKeyFrame(3, 1, 45.0f, glm::vec3(50.41, 0, 0.57));
+	rTE1.setKeyFrame(4, 0,  0.0f, glm::vec3(14.03, 0, -8.14)); rTE1.setKeyFrame(4, 1, 45.0f, glm::vec3(50.41, 0, 0.57));
 	rTE1.setAtCero();
 	turretDestroy.setKeyFrame(0, 0, 0.0f, glm::vec3(0.0f, 1.6f, 1.0f));
 	turretDestroy.setKeyFrame(1, 0, 35.0f, glm::vec3(0.0f, 4.0f, 1.1f));
@@ -206,7 +209,14 @@ GLenum types[6] = {
 	GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
 
 /*
-"../Textures/SkyBox_GE/front.png",
+"../Textures/mp_bloodvalley/blood-valley_ft.tga",
+	"../Textures/mp_bloodvalley/blood-valley_bk.tga",
+	"../Textures/mp_bloodvalley/blood-valley_up.tga",
+	"../Textures/mp_bloodvalley/blood-valley_dn.tga",
+	"../Textures/mp_bloodvalley/blood-valley_rt.tga",
+	"../Textures/mp_bloodvalley/blood-valley_lf.tga" };
+
+	"../Textures/SkyBox_GE/front.png",
 	"../Textures/SkyBox_GE/back.png",
 	"../Textures/SkyBox_GE/top.png",
 	"../Textures/SkyBox_GE/bottom.png",
@@ -215,12 +225,12 @@ GLenum types[6] = {
 */
 
 std::string fileNames[6] = { 
-	"../Textures/mp_bloodvalley/blood-valley_ft.tga",
-	"../Textures/mp_bloodvalley/blood-valley_bk.tga",
-	"../Textures/mp_bloodvalley/blood-valley_up.tga",
-	"../Textures/mp_bloodvalley/blood-valley_dn.tga",
-	"../Textures/mp_bloodvalley/blood-valley_rt.tga",
-	"../Textures/mp_bloodvalley/blood-valley_lf.tga" };
+	"../Textures/SkyBox_GE/front.tga",
+	"../Textures/SkyBox_GE/back.tga",
+	"../Textures/SkyBox_GE/top.tga",
+	"../Textures/SkyBox_GE/bottom.tga",
+	"../Textures/SkyBox_GE/left.tga",
+	"../Textures/SkyBox_GE/right.tga" };
 /********************************************************************************************/
 /************************************Capa de Colision****************************************/
 /********************************************************************************************/
@@ -229,6 +239,7 @@ std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> buil
 std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> mainCharCollOBB;
 std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>> enemyCollOBB;
 std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> proyectileCollSBB;
+std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>> enemyProyectileCollSBB;
 std::map<std::string, std::tuple<AbstractModel::RAY, glm::mat4, glm::mat4>> collidersRAY;
 
 /********************************************************************************************/
@@ -257,7 +268,7 @@ ALenum format;
 ALvoid *data;
 size_t ch;
 ALboolean loop;
-std::vector<bool> sourcesPlay = {true, true, true};
+std::vector<bool> sourcesPlay = {false, false, false};
 
 /*********************************************************************************************/
 /********************************Declaracion de Funciones*************************************/
@@ -532,7 +543,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen){
 	}
 	// Generate buffers, or else no sound will happen!
 	alGenBuffers(NUM_BUFFERS, buffer);
-	buffer[0] = alutCreateBufferFromFile("../sounds/fountain.wav");
+	buffer[0] = alutCreateBufferFromFile("../sounds/laser_shot.wav");
 	buffer[1] = alutCreateBufferFromFile("../sounds/fire.wav");
 	buffer[2] = alutCreateBufferFromFile("../sounds/darth_vader.wav");
 	int errorAlut = alutGetError();
@@ -767,13 +778,16 @@ bool processInput(bool continueApplication) {
 				vecStartTimeShoot[currProy] = currTime;
 				vecModelMatrixProy[currProy] = glm::scale(modelMatrixTankCannon, glm::vec3(75.0f));
 				vecTriggerFire[currProy] = true;
+				sourcesPlay[0] = true;
 			}
 			currProy = (currProy + 1) % MAX_N_PROYECTILES;
 			currCool -= COOLDOWN;
 		}
 		animDHTankCannonIndex = 5;//Disparando
-	}else
+		
+	}else if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE){
 		animDHTankCannonIndex = 0;//No disparo
+	}
 	
 
 	camera->mouseMoveCamera(offsetX, offsetY, deltaTime);
@@ -791,11 +805,11 @@ bool processInput(bool continueApplication) {
 		animDHTankTracksIndex = 0;
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-		modelMatrixTankChasis = glm::translate(modelMatrixTankChasis, glm::vec3(0.0, 0.0, 0.05));
+		modelMatrixTankChasis = glm::translate(modelMatrixTankChasis, glm::vec3(0.0, 0.0, 0.085));
 		animDHTankTracksIndex = 0;
 	}
 	else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-		modelMatrixTankChasis = glm::translate(modelMatrixTankChasis, glm::vec3(0.0, 0.0, -0.05));
+		modelMatrixTankChasis = glm::translate(modelMatrixTankChasis, glm::vec3(0.0, 0.0, -0.085));
 		animDHTankTracksIndex = 0;
 	}
 	if(!isJump && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
@@ -1082,10 +1096,11 @@ void renderSolidScene(){
 			vecCurrSE[i].second = rSE1.getVector(i);
 			vecCurrSE[i].first = rSE1.getScale(i);
 		}else{
-			if(vecTimeSEData[i] > 1.0)
+			if(vecTimeSEData[i] > 1.2f){
 				vecStateSEData[i].first = 5;//Dejar de hacer la animacion de muerte
-			else
-				vecTimeSEData[i] += dTime;
+				vecTimeSEData[i] = 1.2f;
+			}
+			vecTimeSEData[i] += dTime;
 		}
 		glm::mat4 modelMatrixSoldierEnemy = translate(glm::mat4(1.0f),vecCurrSE[i].second);
 		modelMatrixSoldierEnemy = glm::rotate(modelMatrixSoldierEnemy, glm::radians(vecCurrSE[i].first), glm::vec3(0,1,0));
@@ -1099,8 +1114,8 @@ void renderSolidScene(){
 		//Aplicando el desplazamiento por gravedad
 		modelMatrixSoldierEnemy[3][1] = terrain.getHeightTerrain(modelMatrixSoldierEnemy[3][0], modelMatrixSoldierEnemy[3][2]) + 0.85f;
 		modelMatrixSoldierEnemy = glm::scale(modelMatrixSoldierEnemy, glm::vec3(0.0008f));
+		modelSoldierEnemy.setAnimationIndex(vecStateSEData[1].first);
 		modelSoldierEnemy.render(modelMatrixSoldierEnemy);
-		modelSoldierEnemy.setAnimationIndex(vecStateSEData[i].first);
 	}
 	rTE1.animacion();
 	for(int i = 0; i < vecStateTEData.size(); i++){
@@ -1521,6 +1536,7 @@ void applicationLoop() {
 					if(!jt->first.substr(0,7).compare("Soldado")){
 						size_t index = std::stoi(jt->first.substr(jt->first.find_first_of('_') + 1, jt->first.size() - (int)jt->first.find_first_of('_')));
 						if(vecStateSEData[index].first != 4 && vecStateSEData[index].first != 5){
+							std::cout << "Soldado " << index << " Abatido!!!";
 							vecStateSEData[index].second += DAMAGE;
 							if(vecStateSEData[index].second >= MAX_DAMAGE_SE && vecStateSEData[index].first != 5)
 								vecStateSEData[index].first = 4;//Animacion de muerte
@@ -1530,8 +1546,10 @@ void applicationLoop() {
 						size_t index = std::stoi(jt->first.substr(jt->first.find_first_of('_') + 1, jt->first.size() - (int)jt->first.find_first_of('_')));
 						if(vecStatusTEData[index] == 'a'){
 							vecStateTEData[index].second += DAMAGE;
-							if(vecStateTEData[index].second >= MAX_DAMAGE_TE)
+							if(vecStateTEData[index].second >= MAX_DAMAGE_TE){
 								vecStatusTEData[index] = 'd';//Estatus de muerte
+								//turretDestroy.setAtCero();
+							}
 						}
 					}
 				}
@@ -1539,7 +1557,7 @@ void applicationLoop() {
 			addOrUpdateCollisionDetection(collisionDetection, it->first, isCollision);
 		}
 		/*********************Accion en Colisiones****************************/
-		std::map<std::string, bool>::iterator itCollision;
+		/*std::map<std::string, bool>::iterator itCollision;
 		for (itCollision = collisionDetection.begin(); itCollision != collisionDetection.end(); itCollision++) {
 			std::map<std::string, std::tuple<AbstractModel::SBB, glm::mat4, glm::mat4>>::iterator sbbBuscado = proyectileCollSBB.find(itCollision->first);
 			std::map<std::string, std::tuple<AbstractModel::OBB, glm::mat4, glm::mat4>>::iterator obbBuscado = enemyCollOBB.find(itCollision->first);
@@ -1559,7 +1577,7 @@ void applicationLoop() {
 							//modelMatrixTankChasis = std::get<1>(obbBuscado->second); //Retornar a la posicion anterior
 				}
 			}
-		}
+		}*/
 	
 		glfwSwapBuffers(window);
 
@@ -1610,17 +1628,19 @@ void applicationLoop() {
 		// listenerOri[5] = camera->getUp().z;
 		alListenerfv(AL_ORIENTATION, listenerOri);
 
-		for(unsigned int i = 0; i < sourcesPlay.size(); i++)
+		for(size_t i = 0; i < sourcesPlay.size(); i++)
 			if(sourcesPlay[i]){
 				sourcesPlay[i] = false;
 				alSourcePlay(source[i]);
+			}else {
+				alSourcePause(source[i]);
 			}
 		
 	}
 }
 
 int main(int argc, char **argv) {
-	init(1920, 1020, "Guild of Engines V1.1.0", false);
+	init(1920, 1020, "Guild of Engines V1.1.1", false);
 	applicationLoop();
 	destroy();
 	return 1;

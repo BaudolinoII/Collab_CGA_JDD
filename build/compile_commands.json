@@ -1,0 +1,102 @@
+[
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Bones.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\Bones.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/Bones.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Box.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\Box.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/Box.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Cylinder.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\Cylinder.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/Cylinder.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\FirstPersonCamera.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\FirstPersonCamera.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/FirstPersonCamera.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\FontTypeRendering.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\FontTypeRendering.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/FontTypeRendering.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Mesh.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\Mesh.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/Mesh.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Model.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\Model.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/Model.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Shader.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\Shader.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/Shader.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\ShadowBox.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\ShadowBox.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/ShadowBox.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Sphere.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\Sphere.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/Sphere.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Terrain.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\Terrain.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/Terrain.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\Texture.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\Texture.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/Texture.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\ThirdPersonCamera.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\ThirdPersonCamera.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/ThirdPersonCamera.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/CGALib",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL -DCGALib_EXPORTS @CMakeFiles/CGALib.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\CGALib.dir\\src\\TimeManager.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\CGALib\\src\\TimeManager.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/src/TimeManager.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/00_Stable_Version_Begin",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL @CMakeFiles/00_Stable_Version_Begin.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\00_Stable_Version_Begin.dir\\src\\main.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\00_Stable_Version_Begin\\src\\main.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/00_Stable_Version_Begin/src/main.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/01_Clear_Template",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL @CMakeFiles/01_Clear_Template.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\01_Clear_Template.dir\\src\\main.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\01_Clear_Template\\src\\main.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/01_Clear_Template/src/main.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/02_Main_Character",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL @CMakeFiles/02_Main_Character.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\02_Main_Character.dir\\src\\main.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\02_Main_Character\\src\\main.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/02_Main_Character/src/main.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/03_Animation",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL @CMakeFiles/03_Animation.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\03_Animation.dir\\src\\main.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\03_Animation\\src\\main.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/03_Animation/src/main.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/04_Colition_Layers",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL @CMakeFiles/04_Colition_Layers.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\04_Colition_Layers.dir\\src\\main.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\04_Colition_Layers\\src\\main.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/04_Colition_Layers/src/main.cpp"
+},
+{
+  "directory": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build/05_Advance_Enviroment",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -DBUILDING_DLL @CMakeFiles/05_Advance_Enviroment.dir/includes_CXX.rsp -O3 -DNDEBUG -o CMakeFiles\\05_Advance_Enviroment.dir\\src\\main.cpp.obj -c C:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\05_Advance_Enviroment\\src\\main.cpp",
+  "file": "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/05_Advance_Enviroment/src/main.cpp"
+}
+]

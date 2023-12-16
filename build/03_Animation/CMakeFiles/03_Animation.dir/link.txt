@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\03_Animation.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\03_Animation.dir/objects.a @CMakeFiles\03_Animation.dir\objects1.rsp
+C:\msys64\mingw64\bin\g++.exe -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\03_Animation.dir/objects.a -Wl,--no-whole-archive -o C:\Users\espin\OneDrive\Documentos\Semestre2024\Graficos_adv\Collab_CGA_JDD\bin\03_Animation.exe -Wl,--out-implib,lib03_Animation.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\03_Animation.dir\linklibs.rsp

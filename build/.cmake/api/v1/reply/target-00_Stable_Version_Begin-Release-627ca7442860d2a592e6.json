@@ -1,0 +1,287 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/bin/00_Stable_Version_Begin.exe"
+		},
+		{
+			"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/bin/00_Stable_Version_Begin.pdb"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"link_directories",
+			"target_link_libraries",
+			"add_definitions",
+			"include_directories"
+		],
+		"files" : 
+		[
+			"00_Stable_Version_Begin/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 33,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 20,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 42,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 1,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 7,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-O3 -DNDEBUG"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 4,
+					"define" : "BUILDING_DLL"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/00_Stable_Version_Begin/00_Stable_Version_Begin"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/CGALib/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "/usr/include/freetype2"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/00_Stable_Version_Begin/../external/assimp/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/00_Stable_Version_Begin/../external/glfw/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/00_Stable_Version_Begin/../external/glm"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/00_Stable_Version_Begin/../external/glew/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/00_Stable_Version_Begin/../external/FreeImage/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/00_Stable_Version_Begin/../external/OpenAL/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/00_Stable_Version_Begin/../external/Freetype/include"
+				},
+				{
+					"backtrace" : 5,
+					"path" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/00_Stable_Version_Begin/../external/freealut/include"
+				}
+			],
+			"language" : "CXX",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 3,
+			"id" : "CGALib::@1a9f62cd0483ef4537e7"
+		}
+	],
+	"id" : "00_Stable_Version_Begin::@548870c732d8e70c6a02",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-O3 -DNDEBUG",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\00_Stable_Version_Begin\\..\\external\\assimp\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\00_Stable_Version_Begin\\..\\external\\glfw\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\00_Stable_Version_Begin\\..\\external\\Freetype\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\00_Stable_Version_Begin\\..\\external\\FreeImage\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\00_Stable_Version_Begin\\..\\external\\glew\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\00_Stable_Version_Begin\\..\\external\\freealut\\lib",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-LC:\\Users\\espin\\OneDrive\\Documentos\\Semestre2024\\Graficos_adv\\Collab_CGA_JDD\\00_Stable_Version_Begin\\..\\external\\OpenAL\\lib\\x64",
+				"role" : "libraryPath"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lopengl32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lglfw3dll",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lglew32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lassimp",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lfreetype",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lalut",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lOpenAL32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "..\\CGALib\\libCGALib.dll.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lopengl32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lglfw3dll",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lglew32",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lassimp",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lfreetype",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "00_Stable_Version_Begin",
+	"nameOnDisk" : "00_Stable_Version_Begin.exe",
+	"paths" : 
+	{
+		"build" : "00_Stable_Version_Begin",
+		"source" : "00_Stable_Version_Begin"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "00_Stable_Version_Begin/src/main.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

@@ -1,0 +1,226 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					],
+					"jsonFile" : "directory-.-Release-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "CGALib",
+					"jsonFile" : "directory-CGALib-Release-c25a36b81c9fe6cb6742.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "CGALib",
+					"targetIndexes" : 
+					[
+						6
+					]
+				},
+				{
+					"build" : "00_Stable_Version_Begin",
+					"jsonFile" : "directory-00_Stable_Version_Begin-Release-1a998983562545d75e1c.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "00_Stable_Version_Begin",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "01_Clear_Template",
+					"jsonFile" : "directory-01_Clear_Template-Release-726b785fa9b2e53db41b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "01_Clear_Template",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "02_Main_Character",
+					"jsonFile" : "directory-02_Main_Character-Release-73f5515cc4a5882bb05f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "02_Main_Character",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "03_Animation",
+					"jsonFile" : "directory-03_Animation-Release-b81d9ab07bda5891dfb1.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "03_Animation",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "04_Colition_Layers",
+					"jsonFile" : "directory-04_Colition_Layers-Release-a6e2b735356f63073dcd.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "04_Colition_Layers",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "05_Advance_Enviroment",
+					"jsonFile" : "directory-05_Advance_Enviroment-Release-e07cbbfed539cec021e9.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "05_Advance_Enviroment",
+					"targetIndexes" : 
+					[
+						5
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					],
+					"name" : "CGA",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "00_Stable_Version_Begin::@548870c732d8e70c6a02",
+					"jsonFile" : "target-00_Stable_Version_Begin-Release-627ca7442860d2a592e6.json",
+					"name" : "00_Stable_Version_Begin",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "01_Clear_Template::@603c85cbbb1c09f3e8b4",
+					"jsonFile" : "target-01_Clear_Template-Release-27bee0aa987ea72572be.json",
+					"name" : "01_Clear_Template",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "02_Main_Character::@3d7e81ba25ac226a622a",
+					"jsonFile" : "target-02_Main_Character-Release-6388e40eaecf45190795.json",
+					"name" : "02_Main_Character",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "03_Animation::@0743f385bbc5de09cb78",
+					"jsonFile" : "target-03_Animation-Release-f9c4828012aec6834389.json",
+					"name" : "03_Animation",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "04_Colition_Layers::@73594c5550c74c95d551",
+					"jsonFile" : "target-04_Colition_Layers-Release-668bb49a6dd27fcc2180.json",
+					"name" : "04_Colition_Layers",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 7,
+					"id" : "05_Advance_Enviroment::@7506ee1a3e3ea75abbc7",
+					"jsonFile" : "target-05_Advance_Enviroment-Release-44813f8a2d730d0203ee.json",
+					"name" : "05_Advance_Enviroment",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "CGALib::@1a9f62cd0483ef4537e7",
+					"jsonFile" : "target-CGALib-Release-593bc4c9d249f6497399.json",
+					"name" : "CGALib",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD/build",
+		"source" : "C:/Users/espin/OneDrive/Documentos/Semestre2024/Graficos_adv/Collab_CGA_JDD"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}

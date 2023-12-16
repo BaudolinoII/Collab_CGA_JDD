@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\04_Colition_Layers.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\04_Colition_Layers.dir/objects.a @CMakeFiles\04_Colition_Layers.dir\objects1.rsp
+C:\msys64\mingw64\bin\g++.exe -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\04_Colition_Layers.dir/objects.a -Wl,--no-whole-archive -o C:\Users\espin\OneDrive\Documentos\Semestre2024\Graficos_adv\Collab_CGA_JDD\bin\04_Colition_Layers.exe -Wl,--out-implib,lib04_Colition_Layers.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\04_Colition_Layers.dir\linklibs.rsp
